@@ -141,6 +141,8 @@ export default function makeRoutes (store) {
         <Route path='tag/:tagName' component={TagPosts} onEnter={requireLogin} />
       </Route>
 
+      <Route path='m/:id' component={SinglePost} onEnter={requireLogin}/>
+
       <Route path='p/new' component={StandalonePostEditor} onEnter={requireLogin}/>
       <Route path='p/:id' component={SinglePost}/>
       <Route path='p/:id/edit' component={StandalonePostEditor} onEnter={requireLogin}/>

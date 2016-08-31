@@ -18,6 +18,7 @@ import AccessErrorMessage from '../components/AccessErrorMessage'
 import CoverImagePage from '../components/CoverImagePage'
 import EventPost from '../components/EventPost'
 import ProjectPost from '../components/ProjectPost'
+import MessagePost from '../components/MessagePost'
 import { getCurrentCommunity } from '../models/community'
 import { getComments, getCommunities, getPost } from '../models/post'
 import { fetch, ConnectedPostList } from './ConnectedPostList'
@@ -105,6 +106,7 @@ export default class SinglePost extends React.Component {
 const showPost = (post) => {
   switch (post.type) {
     case 'event': return <EventPost post={post}/>
+    case 'message': return <MessagePost post={post}/>
     case 'project': return <ProjectPost/>
   }
   return <Post post={post} expanded/>

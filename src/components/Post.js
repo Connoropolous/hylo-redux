@@ -17,9 +17,7 @@ import Avatar from './Avatar'
 import Dropdown from './Dropdown'
 import { ClickCatchingSpan } from './ClickCatcher'
 import { handleMouseOver } from './TagPopover'
-import Comment from './Comment'
-import CommentForm from './CommentForm'
-import PeopleTyping from './PeopleTyping'
+import CommentSection from './CommentSection'
 import LazyLoader from './LazyLoader'
 import Icon from './Icon'
 import LinkedPersonSentence from './LinkedPersonSentence'
@@ -27,7 +25,7 @@ import LinkPreview from './LinkPreview'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import {
-  appendComment, followPost, navigate, removePost, startPostEdit, voteOnPost, pinPost
+  followPost, navigate, removePost, startPostEdit, voteOnPost, pinPost
 } from '../actions'
 import { same } from '../models'
 import { getComments, getCommunities, isPinned } from '../models/post'
@@ -78,7 +76,7 @@ class Post extends React.Component {
       {linkPreview && <LinkPreview {...{linkPreview}}/>}
       <div className='voting post-section'><VoteButton/><Voters/></div>
       <Attachments/>
-      <CommentSection {...{post, expanded, onExpand, comments}}/>
+      <CommentSection {...{post, expanded, onExpand, comments}} showNames={false}/>
     </div>
   }
 }
@@ -249,97 +247,6 @@ export const Menu = (props, { dispatch, post, currentUser, community }) => {
   </Dropdown>
 }
 Menu.contextTypes = {post: object, currentUser: object, dispatch: func, community: object}
-
-export class CommentSection extends React.Component {
-  static propTypes = {
-    comments: array,
-    onExpand: func,
-    post: object,
-    expanded: bool
-  }
-
-  static contextTypes = {
-    community: object,
-    currentUser: object,
-    isProjectRequest: bool,
-    dispatch: func,
-    socket: object
-  }
-
-  constructor (props) {
-    super(props)
-    this.state = {
-      peopleTyping: {}
-    }
-  }
-
-  componentDidMount () {
-    const { post: { id }, expanded, comments } = this.props
-    const { dispatch } = this.context
-    if (expanded) {
-      this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/subscribe`)
-      this.context.socket.on('commentAdded', function (comment){
-        dispatch(appendComment(id, comment))
-      })
-      //this.context.socket.on('userTyping', this.userTyping.bind(this))
-    }
-  }
-
-  componentWillUnmount () {
-    const { post: { id }, expanded } = this.props
-    if (expanded) {
-      this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/unsubscribe`)
-      this.context.socket.off('commentAdded')
-      //this.context.socket.off('userTyping')
-    }
-  }
-
-  userTyping (data) {
-    let newState = this.state
-    if (data.isTyping) {
-      newState.peopleTyping[data.userId] = data.userName
-    } else {
-      delete newState.peopleTyping[data.userId]
-    }
-    this.setState(newState)
-  }
-
-  startedTyping () {
-    const { post: { id } } = this.props
-    //this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/typing`, { isTyping: true })
-  }
-
-  stoppedTyping () {
-    const { post: { id } } = this.props
-    //this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/typing`, { isTyping: false })
-  }
-
-  render () {
-    let { post, comments, onExpand, expanded } = this.props
-    const truncate = !expanded
-    const { currentUser, community, isProjectRequest } = this.context
-    const placeholder = isProjectRequest ? 'How can you help?' : null
-    const peopleTyping = values(this.state.peopleTyping)
-
-    if (!comments) comments = []
-    comments = sortBy(comments, c => c.created_at)
-    if (truncate) comments = comments.slice(-3)
-
-    return <div className={cx('comments-section post-section', {empty: isEmpty(comments)})}>
-      {truncate && post.numComments > comments.length && <div className='comment show-all'>
-        <a onClick={() => onExpand()}>Show all {post.numComments} comments</a>
-      </div>}
-      {comments.map(c => <Comment comment={{...c, post_id: post.id}}
-        truncate={truncate}
-        expand={() => onExpand(c.id)}
-        community={community}
-        expanded={expanded}
-        key={c.id}/>)}
-      {peopleTyping.length > 0 && <PeopleTyping names={peopleTyping} showNames={false}/>}
-      {currentUser && <CommentForm startedTyping={this.startedTyping.bind(this)} stoppedTyping={this.stoppedTyping.bind(this)} postId={post.id} {...{placeholder}}/>}
-    </div>
-  }
-}
 
 export const VoteButton = (props, { post, currentUser, dispatch }) => {
   let vote = () => dispatch(voteOnPost(post, currentUser))

@@ -272,7 +272,7 @@ export function updatePostEditor (payload, id) {
 export function createPost (id, params) {
   return {
     type: CREATE_POST,
-    payload: {api: true, params, path: '/noo/post', method: 'POST'},
+    payload: {api: true, params, path: '/noo/message', method: 'POST'},
     meta: {id}
   }
 }
