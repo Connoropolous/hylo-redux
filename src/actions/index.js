@@ -239,7 +239,6 @@ export function typeahead (text, id, params) {
   }
 }
 
-<<<<<<< HEAD
 export function updatePostEditor (payload, id) {
   return {
     type: UPDATE_POST_EDITOR,
@@ -604,7 +603,6 @@ export function showExpandedPost (id, commentId) {
   return {type: SHOW_EXPANDED_POST, payload: {id, commentId}}
 }
 
-<<<<<<< HEAD
 export function showDirectMessage (userId) {
   return {type: SHOW_DIRECT_MESSAGE, payload: {userId}}
 }
