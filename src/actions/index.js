@@ -38,6 +38,7 @@ export const FETCH_INVITATIONS = 'FETCH_INVITATIONS'
 export const FETCH_LEFT_NAV_TAGS = 'FETCH_LEFT_NAV_TAGS'
 export const FETCH_LINK_PREVIEW = 'FETCH_LINK_PREVIEW'
 export const FETCH_LIVE_STATUS = 'FETCH_LIVE_STATUS'
+export const FETCH_MESSAGES = 'FETCH_MESSAGES'
 export const FETCH_NETWORK = 'FETCH_NETWORK'
 export const FETCH_ONBOARDING = 'FETCH_ONBOARDING'
 export const FETCH_PEOPLE = 'FETCH_PEOPLE'
@@ -92,6 +93,7 @@ export const SET_MOBILE_DEVICE = 'SET_MOBILE_DEVICE'
 export const SET_PASSWORD = 'SET_PASSWORD'
 export const SET_SIGNUP_ERROR = 'SET_SIGNUP_ERROR'
 export const SHOW_ALL_TAGS = 'SHOW_ALL_TAGS'
+export const SHOW_DIRECT_MESSAGE = 'SHOW_DIRECT_MESSAGE'
 export const SHOW_EXPANDED_POST = 'SHOW_EXPANDED_POST'
 export const SHOW_MODAL = 'SHOW_MODAL'
 export const SHOW_SHARE_TAG = 'SHOW_SHARE_TAG'
@@ -272,8 +274,25 @@ export function updatePostEditor (payload, id) {
 export function createPost (id, params) {
   return {
     type: CREATE_POST,
-    payload: {api: true, params, path: '/noo/message', method: 'POST'},
+    payload: {api: true, params, path: '/noo/post', method: 'POST'},
     meta: {id}
+  }
+}
+
+export function createMessage (params) {
+  return {
+    type: CREATE_MESSAGE,
+    payload: {api: true, params, path: '/noo/message', method: 'POST'}
+  }
+}
+
+export function fetchMessages () {
+  return {
+    type: FETCH_MESSAGES,
+    payload: {api: true, path: '/noo/messages'},
+    meta: {
+      cache: {bucket: 'messages', array: true}
+    }
   }
 }
 
@@ -717,6 +736,10 @@ export function fetchCommunitiesForNetworkNav (networkId) {
 
 export function showExpandedPost (id, commentId) {
   return {type: SHOW_EXPANDED_POST, payload: {id, commentId}}
+}
+
+export function showDirectMessage (userId) {
+  return {type: SHOW_DIRECT_MESSAGE, payload: {userId}}
 }
 
 export function updateComment (commentId, text, tagDescriptions) {

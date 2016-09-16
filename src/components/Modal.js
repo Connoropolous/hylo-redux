@@ -6,6 +6,7 @@ import { closeModal } from '../actions'
 import BrowseTopicsModal from '../containers/BrowseTopicsModal'
 import ShareTopicModal from '../containers/ShareTopicModal'
 import ExpandedPostModal from '../containers/ExpandedPostModal'
+import DirectMessageModal from '../containers/DirectMessageModal'
 import { NotificationsModal } from '../containers/Notifications'
 import cx from 'classnames'
 import { get } from 'lodash'
@@ -69,6 +70,10 @@ export class ModalWrapper extends React.Component {
         modal = <ExpandedPostModal id={params.id} commentId={params.commentId}/>
         clickToClose = true
         break
+      case 'direct-message':
+          modal = <DirectMessageModal userId={params.userId}/>
+          clickToClose = true
+          break
       case 'notifications':
         modal = <NotificationsModal onCancel={close}/>
         clickToClose = true

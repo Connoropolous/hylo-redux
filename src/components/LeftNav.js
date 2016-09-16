@@ -3,7 +3,7 @@ import { A, IndexA } from './A'
 import Icon from './Icon'
 import Tooltip from './Tooltip'
 import { VelocityTransitionGroup } from 'velocity-react'
-import { isEmpty } from 'lodash'
+import { isEmpty, values } from 'lodash'
 import { filter, get } from 'lodash/fp'
 import { tagUrl } from '../routes'
 import { showAllTags } from '../actions/tags'
@@ -102,19 +102,35 @@ const NetworkNav = ({ network }) => {
   </ul>
 }
 
-export const LeftNav = ({ opened, community, network, tags, close, links }, { isMobile }) => {
+const MessageList = ({ messages }) => {
+
+  return <ul className='nav-links'>
+    <li className='subheading'>
+      <a>DIRECT MESSAGES ({messages.length})</a>
+    </li>
+    {messages.map(function(message, i){
+      return <li key={i}>
+        <A to={`/m/${message.id}`}><Icon name='Keypad'/> Monique</A>
+      </li>
+    })}
+  </ul>
+}
+
+export const LeftNav = ({ opened, isMessagePage, community, messages, network, tags, close, links }, { isMobile }) => {
   const onMenuClick = event => {
     close()
     event.stopPropagation()
   }
 
+  const label = isMessagePage ? 'Messages' : isMobile ? 'Menu' : 'Topics'
+
   return <span><VelocityTransitionGroup {...animations}>
     {opened && <nav id='leftNav' onClick={() => isMobile && close()}>
-      <MenuButton onClick={onMenuClick} label={isMobile ? 'Menu' : 'Topics'} showClose/>
-      {network
-        ? <NetworkNav network={network} />
-        : <CommunityNav links={links}/>}
-      {!isEmpty(tags) && <TopicList tags={tags} slug={get('slug', community)}/>}
+      <MenuButton onClick={onMenuClick} label={label} showClose/>
+      {isMessagePage && <MessageList messages={values(messages)}/>}
+      {!isMessagePage && network && <NetworkNav network={network}/>}
+      {!isMessagePage && !network && <CommunityNav links={links}/>}
+      {!isMessagePage && !isEmpty(tags) && <TopicList tags={tags} slug={get('slug', community)}/>}
     </nav>}
     {opened && <div id='leftNavBackdrop' onClick={close}/>}
   </VelocityTransitionGroup>

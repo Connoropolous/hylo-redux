@@ -25,8 +25,6 @@ export default class CommentForm extends React.Component {
   static propTypes = {
     currentUser: object,
     dispatch: func,
-    startedTyping: func,
-    stoppedTyping: func,
     postId: string,
     commentId: string,
     mentionOptions: array,
@@ -37,13 +35,8 @@ export default class CommentForm extends React.Component {
     close: func
   }
 
-  static defaultProps = {
-    startedTyping: function () {},
-    stoppedTyping: function () {}
-  }
-
   static contextTypes = {
-    isMobile: bool
+    isMobile: bool,
   }
 
   constructor (props) {
@@ -86,7 +79,7 @@ export default class CommentForm extends React.Component {
   render () {
     const {
       currentUser, editingTagDescriptions, dispatch, postId, commentId, text,
-      newComment, close, startedTyping, stoppedTyping
+      newComment, close
     } = this.props
     const { isMobile } = this.context
     const editing = text !== undefined
@@ -96,6 +89,15 @@ export default class CommentForm extends React.Component {
 
     const setText = event => updateStore(event.target.value)
     const placeholder = this.props.placeholder || 'Add a comment...'
+
+    const stoppedTyping = () => {
+      if (!newComment) return
+      typingHelper(this.context.socket, postId, false) 
+    }
+    const startedTyping = () => {
+      if (!newComment) return
+      typingHelper(this.context.socket, postId, true) 
+    }
 
     const keyUp = debounce(stoppedTyping, STOPPED_TYPING_WAITTIME)
     const startThrottled = throttle(startedTyping, MAX_TYPING_INTERVAL, { trailing: false })

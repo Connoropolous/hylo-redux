@@ -8,6 +8,7 @@ import commentsByPost from './commentsByPost'
 import communities from './communities'
 import communitiesByQuery from './communitiesByQuery'
 import communitiesForNetworkNav from './communitiesForNetworkNav'
+import messages from './messages'
 import networks from './networks'
 import networkEdits from './networkEdits'
 import people from './people'
@@ -58,6 +59,7 @@ import {
   SET_MOBILE_DEVICE,
   SET_SIGNUP_ERROR,
   SHOW_ALL_TAGS,
+  SHOW_DIRECT_MESSAGE,
   SHOW_EXPANDED_POST,
   SHOW_MODAL,
   SHOW_SHARE_TAG,
@@ -171,6 +173,7 @@ const combinedReducers = combineReducers({
   editingTagDescriptions,
   countFreshPostsByQuery: keyedCount(CHECK_FRESHNESS_POSTS, 'postsByQuery'),
   creatingTagAndDescription,
+  messages,
   networks,
   networkEdits,
   people,
@@ -469,6 +472,8 @@ const combinedReducers = combineReducers({
         return {show: 'share-tag', params: action.payload}
       case SHOW_EXPANDED_POST:
         return {show: 'expanded-post', params: action.payload}
+      case SHOW_DIRECT_MESSAGE:
+          return {show: 'direct-message', params: action.payload}
       case CLOSE_MODAL:
         return null
     }

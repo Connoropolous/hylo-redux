@@ -6,7 +6,6 @@ import {
   humanDate, nonbreaking, present, textLength, truncate, appendInP
 } from '../util/text'
 import { sanitize } from 'hylo-utils/text'
-import { linkifyHashtags } from '../util/linkify'
 import { tagUrl } from '../routes'
 import A from './A'
 import Avatar from './Avatar'
@@ -23,15 +22,13 @@ import decode from 'ent/decode'
 
 const spacer = <span>&nbsp; •&nbsp; </span>
 
-class MessagePost extends React.Component {
+class MessageThread extends React.Component {
   static propTypes = {
     post: object,
     communities: array,
     community: object,
     comments: array,
     dispatch: func,
-    expanded: bool,
-    onExpand: func,
     commentId: string
   }
 
@@ -43,14 +40,11 @@ class MessagePost extends React.Component {
 
   render () {
     const { post, communities, comments, community } = this.props
-    const classes = cx('post')
-    const title = linkifyHashtags(decode(sanitize(post.name || '')), get('slug', community))
+    const classes = cx('dm')
 
     return <div className={classes}>
-      <a name={`post-${post.id}`}></a>
       <Header />
-      <p className='title post-section' dangerouslySetInnerHTML={{__html: title}}></p>
-      <CommentSection {...{post, comments}} showNames={true}/>
+      <CommentSection {...{post, comments}} expanded={true} showNames={true}/>
     </div>
   }
 }
@@ -63,7 +57,7 @@ export default compose(
       community: getCurrentCommunity(state)
     }
   })
-)(MessagePost)
+)(MessageThread)
 
 export const Header = (props, { post }) => {
   const followers = post.followers

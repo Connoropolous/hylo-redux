@@ -32,59 +32,29 @@ export default class CommentSection extends React.Component {
     socket: object
   }
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      peopleTyping: {}
-    }
-  }
-
   componentDidMount () {
-    const { post: { id, type }, expanded, comments } = this.props
+    const { post: { id}, expanded, comments } = this.props
     const { dispatch } = this.context
-    if (expanded || type == 'message') {
+    if (expanded) {
       this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/subscribe`)
       this.context.socket.on('commentAdded', function (comment){
         dispatch(appendComment(id, comment))
       })
-      this.context.socket.on('userTyping', this.userTyping.bind(this))
     }
   }
 
   componentWillUnmount () {
-    const { post: { id, type }, expanded } = this.props
-    if (expanded || type == 'message') {
+    const { post: { id }, expanded } = this.props
+    if (expanded) {
       this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/unsubscribe`)
       this.context.socket.off('commentAdded')
-      this.context.socket.off('userTyping')
     }
-  }
-
-  userTyping (data) {
-    let newState = this.state
-    if (data.isTyping) {
-      newState.peopleTyping[data.userId] = data.userName
-    } else {
-      delete newState.peopleTyping[data.userId]
-    }
-    this.setState(newState)
-  }
-
-  startedTyping () {
-    const { post: { id } } = this.props
-    this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/typing`, { isTyping: true })
-  }
-
-  stoppedTyping () {
-    const { post: { id } } = this.props
-    this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/typing`, { isTyping: false })
   }
 
   render () {
     let { post, comments, onExpand, expanded, showNames } = this.props
     const truncate = !expanded
     const { currentUser, community, isProjectRequest } = this.context
-    const peopleTyping = values(this.state.peopleTyping)
 
     if (!comments) comments = []
     comments = sortBy(comments, c => c.created_at)
@@ -100,8 +70,8 @@ export default class CommentSection extends React.Component {
         community={community}
         expanded={expanded}
         key={c.id}/>)}
-      {peopleTyping.length > 0 && <PeopleTyping names={peopleTyping} showNames={showNames}/>}
-      {currentUser && <CommentForm startedTyping={this.startedTyping.bind(this)} stoppedTyping={this.stoppedTyping.bind(this)} postId={post.id} />}
+      <PeopleTyping showNames={showNames}/>
+      {currentUser && <CommentForm postId={post.id} />}
     </div>
   }
 }
