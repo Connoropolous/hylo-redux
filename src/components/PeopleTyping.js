@@ -1,6 +1,7 @@
 import React from 'react'
 import values from 'lodash'
-const { array, bool, func, object, string } = React.PropTypes
+import getSocket from '../client/websockets'
+const { bool } = React.PropTypes
 
 export default class PeopleTyping extends React.Component {
 
@@ -12,20 +13,16 @@ export default class PeopleTyping extends React.Component {
   }
 
   static propTypes = {
-    names: array,
     showNames: bool
   }
 
-  static contextTypes = {
-    socket: object
-  }
-
   componentDidMount () {
-    this.context.socket.on('userTyping', this.userTyping.bind(this))
+    this.socket = getSocket() 
+    this.socket.on('userTyping', this.userTyping)
   }
 
   componentWillUnmount () {
-    this.context.socket.off('userTyping')
+    if (this.socket) this.socket.off('userTyping')
   }
 
   userTyping (data) {
@@ -42,10 +39,19 @@ export default class PeopleTyping extends React.Component {
     const { showNames } = this.props
     const names = values(this.state.peopleTyping)
     return names.length ? <div className='typing'>
-      {!showNames && names.length == 1 && <div>someone is typing</div>}
-      {showNames && names.length == 1 && <div>{names[0]} is typing</div>}
-      {names.length > 1 && <div>multiple people are typing</div>}
+      <Chillipsis/>
+      {names.length === 1 && <div>
+        {showNames ? names[0] : 'Someone'} is typing...
+      </div>}
+      {names.length > 1 && <div>Multiple people are typing...</div>}
     </div> : null
   }
+}
 
+const Chillipsis = () => {
+  return <div className='chillipsis'>
+    <div className='dot d1'></div>
+    <div className='dot d2'></div>
+    <div className='dot d3'></div>
+  </div>
 }

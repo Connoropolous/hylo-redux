@@ -1,60 +1,51 @@
 import React from 'react'
+import { isEmpty, sortBy, values } from 'lodash'
+const { array, bool, func, object } = React.PropTypes
 import cx from 'classnames'
-import {
-  difference, filter, first, includes, isEmpty, map, some, sortBy, values
-} from 'lodash'
-import { find, get } from 'lodash/fp'
-const { array, bool, func, object, string } = React.PropTypes
-import config from '../config'
+import CommentForm from './CommentForm'
 import PeopleTyping from './PeopleTyping'
 import Comment from './Comment'
-import CommentForm from './CommentForm'
-import { appendComment } from '../actions'
+import { appendComment } from '../actions/comments'
+import { getSocket, socketUrl } from '../client/websockets'
 
 export default class CommentSection extends React.Component {
   static propTypes = {
     comments: array,
     onExpand: func,
     post: object,
-    showNames: bool,
     expanded: bool
-  }
-
-  static defaultProps = {
-    onExpand: function () {}
   }
 
   static contextTypes = {
     community: object,
     currentUser: object,
     isProjectRequest: bool,
-    dispatch: func,
-    socket: object
+    dispatch: func
   }
 
   componentDidMount () {
-    const { post: { id}, expanded, comments } = this.props
+    const { post: { id }, expanded } = this.props
     const { dispatch } = this.context
     if (expanded) {
-      this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/subscribe`)
-      this.context.socket.on('commentAdded', function (comment){
-        dispatch(appendComment(id, comment))
-      })
+      this.socket = getSocket()
+      this.socket.post(socketUrl(`/noo/post/${id}/subscribe`))
+      this.socket.on('commentAdded', c => dispatch(appendComment(id, c)))
     }
   }
 
   componentWillUnmount () {
     const { post: { id }, expanded } = this.props
-    if (expanded) {
-      this.context.socket.post(`${config.upstreamHost}/noo/post/${id}/unsubscribe`)
-      this.context.socket.off('commentAdded')
+    if (expanded && this.socket) {
+      this.socket.post(socketUrl(`/noo/post/${id}/unsubscribe`))
+      this.socket.off('commentAdded')
     }
   }
 
   render () {
-    let { post, comments, onExpand, expanded, showNames } = this.props
+    let { post, comments, onExpand, expanded } = this.props
     const truncate = !expanded
     const { currentUser, community, isProjectRequest } = this.context
+    const placeholder = isProjectRequest ? 'How can you help?' : null
 
     if (!comments) comments = []
     comments = sortBy(comments, c => c.created_at)
@@ -71,7 +62,7 @@ export default class CommentSection extends React.Component {
         expanded={expanded}
         key={c.id}/>)}
       <PeopleTyping showNames={showNames}/>
-      {currentUser && <CommentForm postId={post.id} />}
+      {currentUser && <CommentForm postId={post.id} {...{placeholder}}/>}
     </div>
   }
 }

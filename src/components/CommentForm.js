@@ -3,22 +3,30 @@ import { get, debounce, throttle } from 'lodash'
 import { connect } from 'react-redux'
 import Avatar from './Avatar'
 import RichTextEditor from './RichTextEditor'
-import { createComment, updateCommentEditor, updateComment } from '../actions'
+import { CREATE_COMMENT } from '../actions'
+import { createComment, updateCommentEditor, updateComment } from '../actions/comments'
 import { ADDED_COMMENT, trackEvent } from '../util/analytics'
 import { textLength } from '../util/text'
 import { onCmdOrCtrlEnter } from '../util/textInput'
 import TagDescriptionEditor from './TagDescriptionEditor'
 import cx from 'classnames'
 var { array, bool, func, object, string } = React.PropTypes
-const MAX_TYPING_INTERVAL = 3000
-const STOPPED_TYPING_WAITTIME = 2000
+
+// The interval between repeated typing notifications to the web socket. We send
+// repeated notifications to make sure that a user gets notified even if they
+// load a comment thread after someone else has already started typing.
+const STARTED_TYPING_INTERVAL = 5000
+
+// The time to wait for inactivity before announcing that typing has stopped.
+const STOPPED_TYPING_WAIT_TIME = 8000
 
 @connect((state, { postId, commentId }) => {
   return ({
     currentUser: get(state, 'people.current'),
     editingTagDescriptions: state.editingTagDescriptions,
     text: postId ? state.commentEdits.new[postId] : state.commentEdits.edit[commentId],
-    newComment: !commentId
+    newComment: !commentId,
+    pending: state.pending[CREATE_COMMENT]
   })
 })
 export default class CommentForm extends React.Component {
@@ -32,7 +40,8 @@ export default class CommentForm extends React.Component {
     editingTagDescriptions: bool,
     text: string,
     newComment: bool,
-    close: func
+    close: func,
+    pending: bool
   }
 
   static contextTypes = {
@@ -45,9 +54,9 @@ export default class CommentForm extends React.Component {
   }
 
   submit = event => {
-    const { dispatch, postId, commentId, newComment, close } = this.props
+    const { dispatch, postId, commentId, newComment, close, pending } = this.props
     if (event) event.preventDefault()
-    if (!this.state.enabled) return
+    if (!this.state.enabled || pending) return
     const text = this.refs.editor.getContent().replace(/<p>&nbsp;<\/p>$/m, '')
     if (!text || textLength(text) < 2) return false
 
@@ -74,12 +83,13 @@ export default class CommentForm extends React.Component {
     const modifierKey = window.navigator.platform.startsWith('Mac')
       ? 'Cmd' : 'Ctrl'
     this.setState({modifierKey})
+    this.socket = getSocket()
   }
 
   render () {
     const {
       currentUser, editingTagDescriptions, dispatch, postId, commentId, text,
-      newComment, close
+      newComment, close, pending
     } = this.props
     const { isMobile } = this.context
     const editing = text !== undefined
@@ -92,19 +102,20 @@ export default class CommentForm extends React.Component {
 
     const stoppedTyping = () => {
       if (!newComment) return
-      typingHelper(this.context.socket, postId, false) 
+      if (this.socket) this.socket.post(socketUrl(`/noo/post/${postId}/typing`), { isTyping: false })
     }
     const startedTyping = () => {
       if (!newComment) return
-      typingHelper(this.context.socket, postId, true) 
+      if (this.socket) this.socket.post(socketUrl(`/noo/post/${postId}/typing`), { isTyping: true })
     }
 
-    const keyUp = debounce(stoppedTyping, STOPPED_TYPING_WAITTIME)
-    const startThrottled = throttle(startedTyping, MAX_TYPING_INTERVAL, { trailing: false })
-    const keyDown = e => {
+    const stopTyping = debounce(stoppedTyping, STOPPED_TYPING_WAIT_TIME)
+    const startTyping = throttle(startedTyping, STARTED_TYPING_INTERVAL, {trailing: false})
+    const handleKeyDown = e => {
       this.setState({enabled: this.refs.editor.getContent().length > 0})
-      startThrottled()
+      startTyping()
       onCmdOrCtrlEnter(e => {
+        stoppedTyping()
         e.preventDefault()
         this.submit()
       }, e)
@@ -122,10 +133,10 @@ export default class CommentForm extends React.Component {
               content={text}
               onBlur={() => updateStore(this.refs.editor.getContent())}
               onChange={setText}
-              onKeyUp={keyUp}
-              onKeyDown={keyDown}/>
+              onKeyUp={stopTyping}
+              onKeyDown={handleKeyDown}/>
             <input type='submit' value='Post' ref='button'
-              className={cx({enabled})}/>
+              className={cx({enabled: enabled && !pending})}/>
             {close && <button onClick={close}>Cancel</button>}
             {!isMobile && modifierKey && <span className='meta help-text'>
               or press {modifierKey}-Enter

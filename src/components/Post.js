@@ -1,7 +1,5 @@
 import React from 'react'
-import {
-  difference, filter, first, includes, isEmpty, map, some, sortBy, values
-} from 'lodash'
+import { difference, first, includes, map, some, sortBy } from 'lodash'
 import { find, get } from 'lodash/fp'
 const { array, bool, func, object, string } = React.PropTypes
 import cx from 'classnames'
@@ -15,25 +13,26 @@ import { tagUrl } from '../routes'
 import A from './A'
 import Avatar from './Avatar'
 import Dropdown from './Dropdown'
+import Attachments from './Attachments'
 import { ClickCatchingSpan } from './ClickCatcher'
 import { handleMouseOver } from './TagPopover'
-import CommentSection from './CommentSection'
 import LazyLoader from './LazyLoader'
 import Icon from './Icon'
 import LinkedPersonSentence from './LinkedPersonSentence'
 import LinkPreview from './LinkPreview'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
+import { navigate } from '../actions'
 import {
-  followPost, navigate, removePost, startPostEdit, voteOnPost, pinPost
-} from '../actions'
+  completePost, followPost, removePost, startPostEdit, voteOnPost, pinPost
+} from '../actions/posts'
 import { same } from '../models'
-import { getComments, getCommunities, isPinned } from '../models/post'
+import { denormalizedPost, getComments, isPinned } from '../models/post'
 import { getCurrentCommunity } from '../models/community'
 import { canEditPost, canModerate } from '../models/currentUser'
 import { isMobile } from '../client/util'
-import config from '../config'
 import decode from 'ent/decode'
+import CommentSection from './CommentSection'
 
 const spacer = <span>&nbsp; •&nbsp; </span>
 
@@ -43,7 +42,6 @@ export const presentDescription = (post, community, opts = {}) =>
 class Post extends React.Component {
   static propTypes = {
     post: object,
-    communities: array,
     community: object,
     comments: array,
     dispatch: func,
@@ -59,8 +57,8 @@ class Post extends React.Component {
   }
 
   render () {
-    const { post, communities, comments, expanded, onExpand, community } = this.props
-    const { tag, media, linkPreview } = post
+    const { post, comments, expanded, onExpand, community } = this.props
+    const { communities, tag, media, linkPreview } = post
     const image = find(m => m.type === 'image', media)
     const classes = cx('post', tag, {image, expanded})
     const title = linkifyHashtags(decode(sanitize(post.name || '')), get('slug', community))
@@ -85,22 +83,29 @@ export default compose(
   connect((state, { post }) => {
     return {
       comments: getComments(post, state),
-      communities: getCommunities(post, state),
-      community: getCurrentCommunity(state)
+      community: getCurrentCommunity(state),
+      post: denormalizedPost(post, state)
     }
   })
 )(Post)
 
 export const UndecoratedPost = Post // for testing
 
-export const Header = ({ communities }, { post, community }) => {
-  const { tag } = post
+export const Header = ({ communities }, { post, currentUser, dispatch }) => {
+  const { tag, fulfilled_at } = post
   const person = tag === 'welcome' ? post.relatedUsers[0] : post.user
   const createdAt = new Date(post.created_at)
+  const canEdit = canEditPost(currentUser, post)
+  const showCheckbox = post.tag === 'request' && (canEdit || fulfilled_at)
 
   return <div className='header'>
     <Menu/>
     <Avatar person={person}/>
+    {showCheckbox && <input type='checkbox'
+      className='completion-toggle'
+      checked={!!post.fulfilled_at}
+      onChange={() => canEdit && dispatch(completePost(post.id))}
+      readOnly={!canEdit}/>}
     {tag === 'welcome'
       ? <WelcomePostHeader communities={communities}/>
       : <div>
@@ -115,7 +120,7 @@ export const Header = ({ communities }, { post, community }) => {
         </div>}
   </div>
 }
-Header.contextTypes = {post: object, community: object}
+Header.contextTypes = {post: object, currentUser: object, dispatch: func}
 
 const Communities = ({ communities }, { community }) => {
   if (community) communities = sortBy(communities, c => c.id !== community.id)
@@ -125,9 +130,10 @@ const Communities = ({ communities }, { community }) => {
   const communityLink = community => <A to={`/c/${community.slug}`}>{community.name}</A>
   return <span className='communities'>
     &nbsp;in {communityLink(communities[0])}
+    {length > 1 && <span> + </span>}
     {length > 1 && <Dropdown className='post-communities-dropdown'
-      toggleChildren={<span> + {length - 1} other{length > 2 ? 's' : ''}</span>}>
-      {communities.map(c => <li key={c.id}>{communityLink(c)}</li>)}
+      toggleChildren={<span>{length - 1} other{length > 2 ? 's' : ''}</span>}>
+      {communities.slice(1).map(c => <li key={c.id}>{communityLink(c)}</li>)}
     </Dropdown>}
   </span>
 }
@@ -151,14 +157,16 @@ const HashtagLink = ({ tag, slug }, { dispatch }) => {
 HashtagLink.contextTypes = {dispatch: func}
 
 export const Details = ({ expanded, onExpand }, { post, community, dispatch }) => {
+  const truncatedSize = 300
   const { tag } = post
+  if (!community) community = post.communities[0]
   const slug = get('slug', community)
   let description = presentDescription(post, community)
   let extractedTags = []
-  const truncated = !expanded && textLength(description) > 200
+  const truncated = !expanded && textLength(description) > truncatedSize
   if (truncated) {
     const orig = description
-    description = truncate(description, 200)
+    description = truncate(description, truncatedSize)
     extractedTags = extractTags(description, orig)
   }
   if (description) description = appendInP(description, '&nbsp;')
@@ -179,20 +187,6 @@ export const Details = ({ expanded, onExpand }, { post, community, dispatch }) =
   </div>
 }
 Details.contextTypes = {post: object, community: object, dispatch: func}
-
-const Attachments = (props, { post }) => {
-  const attachments = filter(post.media, m => m.type === 'gdoc')
-  if (isEmpty(attachments)) return <span/>
-
-  return <div className='post-section'>
-    {attachments.map((file, i) =>
-      <a key={i} className='attachment' href={file.url} target='_blank' title={file.name}>
-        <img src={file.thumbnail_url}/>
-        {truncate(file.name, 40).text}
-      </a>)}
-  </div>
-}
-Attachments.contextTypes = {post: object}
 
 const WelcomePostHeader = ({ communities }, { post }) => {
   let person = post.relatedUsers[0]
@@ -217,7 +211,7 @@ WelcomePostHeader.contextTypes = {post: object}
 
 export const Menu = (props, { dispatch, post, currentUser, community }) => {
   const canEdit = canEditPost(currentUser, post)
-  const following = some(post.followers, same('id', currentUser))
+  const following = some(post.follower_ids, id => id === currentUser.id)
   const pinned = isPinned(post, community)
   const edit = () => isMobile()
     ? dispatch(navigate(`/p/${post.id}/edit`))

@@ -2,7 +2,8 @@ import React from 'react'
 import { prefetch } from 'react-fetcher'
 import { connect } from 'react-redux'
 import { capitalize } from 'lodash'
-import { fetchCommunity, fetchPost, navigate, startPostEdit, CREATE_POST, UPDATE_POST } from '../actions'
+import { fetchCommunity, navigate, CREATE_POST, UPDATE_POST } from '../actions'
+import { fetchPost, startPostEdit } from '../actions/posts'
 import { getCommunities, getPost } from '../models/post'
 import { getCommunity } from '../models/community'
 import { PostEditor, newPostId } from '../components/PostEditor'
@@ -55,8 +56,6 @@ export default class StandalonePostEditor extends React.Component {
     const { post, postEdit, dispatch, community, route: { type }, saving } = this.props
     const { editor } = this.refs
     if (!postEdit) return <div className='loading'>Loading...</div>
-
-    console.log('saving', saving)
 
     const goBack = () => {
       if (window.history && window.history.length > 2) {

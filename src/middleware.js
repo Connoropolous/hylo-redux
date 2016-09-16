@@ -27,17 +27,29 @@ export function cacheMiddleware (store) {
     if (array) {
       if (hit && hit.length > offset) {
         debug(`cache hit: ${bucket}[${id}][${offset}] + ${limit}`)
-        return Promise.resolve({...action, cacheHit: true})
+        return Promise.resolve({...action, payload: hit, cacheHit: true})
       }
     } else {
       if (hit && !requiredProp || has(hit, requiredProp)) {
         debug(`cache hit: ${bucket}[${id}]`)
-        return Promise.resolve({...action, cacheHit: true})
+        return Promise.resolve({...action, payload: hit, cacheHit: true})
       }
     }
 
     return next(action)
   }
+}
+
+export const addDataToStoreMiddleware = store => next => action => {
+  const { type, payload, meta } = action
+  if (type.endsWith(_PENDING) || isPromise(payload)) return next(action)
+
+  if (meta && meta.addDataToStore) {
+    forEach(meta.addDataToStore, (fn, bucket) =>
+      store.dispatch(addDataToStore(bucket, fn(payload), type)))
+  }
+
+  return next(action)
 }
 
 export function apiMiddleware (req) {
@@ -49,16 +61,8 @@ export function apiMiddleware (req) {
     const cookie = req && req.headers.cookie
     let promise = fetchJSON(path, params, {method, cookie})
 
-    if (meta) {
-      if (meta.addDataToStore) {
-        promise = promise.then(payload => {
-          forEach(meta.addDataToStore, (fn, bucket) =>
-            store.dispatch(addDataToStore(bucket, fn(payload))))
-          return payload
-        })
-      }
-
-      if (meta.then) promise = promise.then(meta.then)
+    if (meta && meta.then) {
+      promise = promise.then(meta.then)
     }
 
     return next({...action, payload: promise})

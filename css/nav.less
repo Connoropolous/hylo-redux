@@ -210,8 +210,14 @@ nav {
 
   .user-menu {
     .dropdown-menu {
+      border-top: 1px solid rgba(0,0,0,.05);
+      border-right: none;
+      border-bottom: none;
+      border-left: 1px solid rgba(0,0,0,.13);
+      font-size: 13px;
       margin-top: 6px;
       overflow-y: visible;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.055);
       .mobile({
         margin-top: 20px;
       });
@@ -227,6 +233,9 @@ nav {
           position: relative;
           top: -1px;
           border: 0;
+        }
+        &:hover {
+          color: @damian-green;
         }
       }
     }
@@ -330,27 +339,27 @@ nav {
     }
 
     @media (max-width: (@main-menu-shrink-breakpoint - 1)) {
-      .a-Members {
+      .a-2 {
         display: none;
       }
 
-      .li-Events, .li-Projects {
+      .li-0, .li-1 {
         display: none;
       }
 
-      .li-Members {
+      .li-2 {
         display: block;
       }
     }
 
     @media (min-width: @main-menu-shrink-breakpoint) {
-      &.has-4-links {
+      &.has-3-links, &.has-4-links {
         .dropdown {
           display: none;
         }
       }
 
-      .li-Events, .li-Projects, .li-Members {
+      .li-0, .li-1, .li-2 {
         display: none;
       }
     }

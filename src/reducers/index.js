@@ -20,6 +20,7 @@ import postsByQuery from './postsByQuery'
 import { tagsByCommunity, tagsByQuery, totalTagsByQuery } from './tags'
 import tagInvitationEditor from './tagInvitationEditor'
 import posts from './posts'
+import pending from './pending'
 import tooltips from './tooltips'
 import {
   appendPayloadByPath, keyedCounter, keyedCount, composeReducers, handleSetState
@@ -32,14 +33,12 @@ import {
   CHECK_FRESHNESS_POSTS,
   CLOSE_MODAL,
   CREATE_COMMUNITY,
-  CREATE_POST,
   CREATE_NETWORK,
   FETCH_ACTIVITY,
   FETCH_COMMUNITIES,
   FETCH_INVITATIONS,
   FETCH_PEOPLE,
   FETCH_POSTS,
-  FETCH_TAGS,
   FETCH_THANKS,
   HIDE_TAG_POPOVER,
   LOGIN,
@@ -51,7 +50,6 @@ import {
   RESET_NETWORK_VALIDATION,
   SEARCH,
   SEND_COMMUNITY_INVITATION,
-  SEND_COMMUNITY_TAG_INVITATION,
   SET_CURRENT_COMMUNITY_ID,
   SET_CURRENT_NETWORK_ID,
   SET_LOGIN_ERROR,
@@ -71,7 +69,6 @@ import {
   UPDATE_COMMUNITY_EDITOR,
   UPDATE_NETWORK_EDITOR,
   UPDATE_INVITATION_EDITOR,
-  UPDATE_POST,
   UPLOAD_IMAGE,
   VALIDATE_COMMUNITY_ATTRIBUTE,
   VALIDATE_COMMUNITY_ATTRIBUTE_PENDING,
@@ -176,6 +173,7 @@ const combinedReducers = combineReducers({
   messages,
   networks,
   networkEdits,
+  pending,
   people,
   peopleByQuery,
   posts,
@@ -209,33 +207,6 @@ const combinedReducers = combineReducers({
   totalPeopleByQuery: keyedCounter(FETCH_PEOPLE, 'total'),
   totalSearchResultsByQuery: keyedCounter(SEARCH, 'total'),
   totalTagsByQuery,
-
-  pending: (state = {}, action) => {
-    let { type, meta } = action
-
-    let toggle = (targetType, useMeta) => {
-      if (type === targetType) return {...state, [targetType]: false}
-      if (type === targetType + '_PENDING') {
-        return {...state, [targetType]: (useMeta && meta ? meta : true)}
-      }
-    }
-
-    return toggle(FETCH_POSTS) ||
-      toggle(FETCH_PEOPLE) ||
-      toggle(UPLOAD_IMAGE, true) ||
-      toggle(CREATE_POST) ||
-      toggle(UPDATE_POST) ||
-      toggle(CREATE_COMMUNITY) ||
-      toggle(CREATE_NETWORK) ||
-      toggle(FETCH_ACTIVITY) ||
-      toggle(SEND_COMMUNITY_INVITATION) ||
-      toggle(SEND_COMMUNITY_TAG_INVITATION) ||
-      toggle(FETCH_INVITATIONS) ||
-      toggle(FETCH_COMMUNITIES) ||
-      toggle(FETCH_TAGS) ||
-      toggle(SEARCH) ||
-      state
-  },
 
   typeaheadMatches: (state = {}, action) => {
     let { error, type, payload, meta } = action

@@ -7,13 +7,10 @@ import App from './containers/App'
 import AllCommunities, { AllPosts } from './containers/AllCommunities'
 import People from './containers/People'
 import Projects from './containers/Projects'
-import {
-  CreateCommunityContainer, CreateCommunity, CreateCommunityInvite
-} from './containers/CreateCommunity'
+import { CreateCommunity, CreateCommunityInvite } from './containers/CreateCommunity'
 import CommunityProfile from './containers/community/CommunityProfile'
 import CommunityPosts from './containers/community/CommunityPosts'
 import CommunityEditor from './containers/community/CommunityEditor'
-import CommunityInvitations from './containers/community/CommunityInvitations'
 import CommunityJoinForm from './containers/community/CommunityJoinForm'
 import CommunityJoinLinkHandler from './containers/community/CommunityJoinLinkHandler'
 import InvitationHandler from './containers/community/InvitationHandler'
@@ -87,10 +84,9 @@ export default function makeRoutes (store) {
     <Route path='signup' component={Signup}/>
     <Route path='login' component={Login}/>
 
-    <Route path='create' component={CreateCommunityContainer}>
-      <IndexRoute component={CreateCommunity}/>
-      <Route path='invite' component={CreateCommunityInvite}/>
-    </Route>
+    <Route path='create' component={CreateCommunity} onEnter={requireLogin}/>
+    <Route path='invite' component={CreateCommunityInvite} onEnter={requireLogin}/>
+    <Route path='c/:id/invite' component={CreateCommunityInvite} onEnter={requireLogin}/>
 
     <Route path='set-password' component={SetPassword}/>
 
@@ -138,7 +134,6 @@ export default function makeRoutes (store) {
         <Route path='about' component={AboutCommunity}/>
         <Route path='settings/tags' component={TagSettings}/>
         <Route path='settings' component={CommunitySettings} onEnter={requireLogin}/>
-        <Route path='invite' component={CommunityInvitations} onEnter={requireLogin}/>
         <Route path='tag/:tagName' component={TagPosts} onEnter={requireLogin} />
       </Route>
 
@@ -191,6 +186,9 @@ export const commentUrl = comment =>
 export const postUrl = (postId, commentId) =>
   `/p/${postId}` + (commentId ? `#comment-${commentId}` : '')
 
+export const userUrl = (user) =>
+  `/u/${user.id}`
+
 export const tagUrl = (name, slug) => {
   var result = ''
   if (slug) result += `/c/${slug}`
@@ -199,7 +197,7 @@ export const tagUrl = (name, slug) => {
 }
 
 export const tagUrlComponents = (url) => {
-  let match = url.match(/\/c\/([^\/]+)\/tag\/([^\/]+)/)
+  let match = url.match(/(?:\/c\/([^\/]+))?\/tag\/([^\/]+)/)
   if (!match) return {}
   return {
     slug: match[1],
