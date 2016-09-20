@@ -264,9 +264,11 @@ export function createMessage (params) {
 }
 
 export function fetchMessages () {
+  let querystring = cleanAndStringify({comments: true})
+
   return {
     type: FETCH_MESSAGES,
-    payload: {api: true, path: '/noo/messages'},
+    payload: {api: true,  path: `/noo/messages?${querystring}`},
     meta: {
       cache: {bucket: 'messages', array: true}
     }

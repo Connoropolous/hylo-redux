@@ -4,9 +4,10 @@ import { connect } from 'react-redux'
 import { get, includes } from 'lodash'
 import { pick } from 'lodash/fp'
 import {
-  FETCH_POST, fetchComments, fetchPost, navigate,
-  setMetaTags
+  FETCH_POST, navigate, setMetaTags
 } from '../actions'
+import { fetchComments } from '../actions/comments'
+import { fetchPost } from '../actions/posts'
 import { saveCurrentCommunityId } from '../actions/util'
 import { ogMetaTags } from '../util'
 import A from '../components/A'
@@ -15,7 +16,7 @@ import { findError } from '../actions/util'
 import AccessErrorMessage from '../components/AccessErrorMessage'
 import MessageThread from '../components/MessageThread'
 import { getCurrentCommunity } from '../models/community'
-import { getComments, getCommunities, getPost } from '../models/post'
+import { denormalizedPost, getComments, getPost } from '../models/post'
 const { array, bool, object, string, func } = React.PropTypes
 
 const subject = 'community'
@@ -26,11 +27,9 @@ const subject = 'community'
 @connect((state, { params: { id } }) => {
   const post = getPost(id, state)
   return {
-    post,
+    post: denormalizedPost(post, state),
     community: getCurrentCommunity(state),
-    communities: getCommunities(post, state),
     comments: getComments(post, state),
-    currentUser: state.people.current,
     editing: !!state.postEdits[id],
     error: findError(state.errors, FETCH_POST, 'posts', id)
   }

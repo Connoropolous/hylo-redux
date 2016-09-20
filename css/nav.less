@@ -373,7 +373,7 @@ nav {
   background-color: @damian-red;
 }
 
-#notifications-menu {
+.nav-notify-dropdown {
   position: relative;
   display: block;
   .mobile({
@@ -407,19 +407,19 @@ nav {
       opacity: 0.8;
       text-decoration: none;
     }
-  }
 
-  .icon {
-    line-height: @avatar-size-default;
-    display: block;
-    width: @avatar-size-default;
-    vertical-align: middle;
-    text-align: center;
-    font-size: 16px;
-    color: black;
-    &:before {
-      top: -1px;
-      position: relative;
+    .icon {
+      line-height: @avatar-size-default;
+      display: block;
+      width: @avatar-size-default;
+      vertical-align: middle;
+      text-align: center;
+      font-size: 16px;
+      color: black;
+      &:before {
+        top: -1px;
+        position: relative;
+      }
     }
   }
 
@@ -431,6 +431,10 @@ nav {
   .dropdown {
     li {
       width: 30vw;
+
+      &.top {
+        line-height: normal;
+      }
 
       &.bottom {
         a {
@@ -453,7 +457,7 @@ nav {
   }
 }
 
-.notifications-list {
+.messages-list, .notifications-list {
   padding-left: 0;
 
   li {

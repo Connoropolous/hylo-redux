@@ -186,6 +186,9 @@ export const commentUrl = comment =>
 export const postUrl = (postId, commentId) =>
   `/p/${postId}` + (commentId ? `#comment-${commentId}` : '')
 
+export const messageUrl = (messageId) =>
+  `/m/${messageId}`
+
 export const userUrl = (user) =>
   `/u/${user.id}`
 

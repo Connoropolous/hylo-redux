@@ -1,6 +1,6 @@
 import React from 'react'
-import values from 'lodash'
-import getSocket from '../client/websockets'
+import { values } from 'lodash'
+import { getSocket } from '../client/websockets'
 const { bool } = React.PropTypes
 
 export default class PeopleTyping extends React.Component {

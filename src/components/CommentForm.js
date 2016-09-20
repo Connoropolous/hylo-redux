@@ -10,6 +10,7 @@ import { textLength } from '../util/text'
 import { onCmdOrCtrlEnter } from '../util/textInput'
 import TagDescriptionEditor from './TagDescriptionEditor'
 import cx from 'classnames'
+import { getSocket, socketUrl } from '../client/websockets'
 var { array, bool, func, object, string } = React.PropTypes
 
 // The interval between repeated typing notifications to the web socket. We send

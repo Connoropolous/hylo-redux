@@ -5,18 +5,11 @@ import cx from 'classnames'
 import {
   humanDate, nonbreaking, present, textLength, truncate, appendInP
 } from '../util/text'
-import { sanitize } from 'hylo-utils/text'
-import { tagUrl } from '../routes'
-import A from './A'
-import Avatar from './Avatar'
-import CommentSection from './CommentSection'
-import LazyLoader from './LazyLoader'
-import Icon from './Icon'
+import MessageSection from './MessageSection'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
-import { getComments, getCommunities, isPinned } from '../models/post'
+import { getComments, getCommunities } from '../models/post'
 import { getCurrentCommunity } from '../models/community'
-import { isMobile } from '../client/util'
 import config from '../config'
 import decode from 'ent/decode'
 
@@ -27,9 +20,8 @@ class MessageThread extends React.Component {
     post: object,
     communities: array,
     community: object,
-    comments: array,
+    messages: array,
     dispatch: func,
-    commentId: string
   }
 
   static childContextTypes = {post: object}
@@ -39,12 +31,12 @@ class MessageThread extends React.Component {
   }
 
   render () {
-    const { post, communities, comments, community } = this.props
+    const { post, messages } = this.props
     const classes = cx('dm')
 
     return <div className={classes}>
       <Header />
-      <CommentSection {...{post, comments}} expanded={true} showNames={true}/>
+      <MessageSection {...{post, messages}}/>
     </div>
   }
 }
@@ -52,7 +44,7 @@ class MessageThread extends React.Component {
 export default compose(
   connect((state, { post }) => {
     return {
-      comments: getComments(post, state),
+      messages: getComments(post, state),
       communities: getCommunities(post, state),
       community: getCurrentCommunity(state)
     }
