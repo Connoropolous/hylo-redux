@@ -137,7 +137,7 @@ export default function makeRoutes (store) {
         <Route path='tag/:tagName' component={TagPosts} onEnter={requireLogin} />
       </Route>
 
-      <Route path='m/:id' component={MessageThreadPage} onEnter={requireLogin}/>
+      <Route path='t/:id' component={MessageThreadPage} onEnter={requireLogin}/>
 
       <Route path='p/new' component={StandalonePostEditor} onEnter={requireLogin}/>
       <Route path='p/:id' component={SinglePost}/>
@@ -186,8 +186,8 @@ export const commentUrl = comment =>
 export const postUrl = (postId, commentId) =>
   `/p/${postId}` + (commentId ? `#comment-${commentId}` : '')
 
-export const messageUrl = (messageId) =>
-  `/m/${messageId}`
+export const threadUrl = (threadId) =>
+  `/t/${threadId}`
 
 export const userUrl = (user) =>
   `/u/${user.id}`

@@ -6,7 +6,7 @@ import { VelocityComponent } from 'velocity-react'
 import TopNav from '../components/TopNav'
 import NetworkNav from '../components/NetworkNav'
 import { LeftNav, leftNavWidth, leftNavEasing } from '../components/LeftNav'
-import { toggleLeftNav, updateUserSettings, fetchMessages } from '../actions'
+import { toggleLeftNav, updateUserSettings, fetchThreads } from '../actions'
 import { getCurrentCommunity } from '../models/community'
 import { getCurrentNetwork } from '../models/network'
 import { aggregatedTags } from '../models/hashtag'
@@ -34,10 +34,10 @@ const makeNavLinks = (currentUser, community) => {
 
 const PageWithNav = (props, context) => {
   const {
-    leftNavIsOpen, community, messages, networkCommunities, network, tags, path, children
+    leftNavIsOpen, community, threads, networkCommunities, network, tags, path, children
   } = props
   const { dispatch, currentUser, isMobile } = context
-  const isMessagePage = path.slice(1,2) === 'm'
+  const isThreadPage = false // path.slice(1,2) === 't'
 
   const moveWithMenu = {marginLeft: leftNavIsOpen ? leftNavWidth : 0}
   const toggleLeftNavAndSave = open => {
@@ -58,11 +58,11 @@ const PageWithNav = (props, context) => {
 
   return <div>
     <LeftNav opened={leftNavIsOpen}
-      isMessagePage={isMessagePage}
+      isThreadPage={isThreadPage}
       links={links}
       community={community}
       network={network}
-      messages={messages}
+      threads={threads}
       tags={tags}
       close={closeLeftNav}/>
 
@@ -99,18 +99,16 @@ PageWithNav.propTypes = {
 }
 PageWithNav.contextTypes = {isMobile: bool, dispatch: func, currentUser: object}
 
-export default compose(
-  prefetch(({ dispatch }) => dispatch(fetchMessages())),
-  connect((state, props) => {
-    const { leftNavIsOpen, messages, tagsByCommunity, communitiesForNetworkNav } = state
+export default connect((state, props) => {
+    const { leftNavIsOpen, threads, tagsByCommunity, communitiesForNetworkNav } = state
     const community = getCurrentCommunity(state)
     const network = getCurrentNetwork(state)
     const networkCommunities =
       communitiesForNetworkNav[network ? network.id : get('network.id', community)]
 
     return {
-      leftNavIsOpen, community, messages, networkCommunities, network,
+      leftNavIsOpen, community, threads, networkCommunities, network,
       tags: get(get('slug', community), tagsByCommunity) || aggregatedTags(state),
       path: state.routing.locationBeforeTransitions.pathname
     }
-  }))(PageWithNav)
+  })(PageWithNav)

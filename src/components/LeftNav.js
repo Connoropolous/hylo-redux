@@ -102,35 +102,35 @@ const NetworkNav = ({ network }) => {
   </ul>
 }
 
-const MessageList = ({ messages }) => {
+const ThreadList = ({ threads }) => {
 
   return <ul className='nav-links'>
     <li className='subheading'>
-      <a>DIRECT MESSAGES ({messages.length})</a>
+      <a>DIRECT MESSAGES ({threads.length})</a>
     </li>
-    {messages.map(function(message, i){
+    {threads.map(function(thread, i){
       return <li key={i}>
-        <A to={`/m/${message.id}`}><Icon name='Keypad'/> Monique</A>
+        <A to={`/m/${thread.id}`}><Icon name='Keypad'/> Monique</A>
       </li>
     })}
   </ul>
 }
 
-export const LeftNav = ({ opened, isMessagePage, community, messages, network, tags, close, links }, { isMobile }) => {
+export const LeftNav = ({ opened, isThreadPage, community, threads, network, tags, close, links }, { isMobile }) => {
   const onMenuClick = event => {
     close()
     event.stopPropagation()
   }
 
-  const label = isMessagePage ? 'Messages' : isMobile ? 'Menu' : 'Topics'
+  const label = isThreadPage ? 'Messages' : isMobile ? 'Menu' : 'Topics'
 
   return <span><VelocityTransitionGroup {...animations}>
     {opened && <nav id='leftNav' onClick={() => isMobile && close()}>
       <MenuButton onClick={onMenuClick} label={label} showClose/>
-      {isMessagePage && <MessageList messages={values(messages)}/>}
-      {!isMessagePage && network && <NetworkNav network={network}/>}
-      {!isMessagePage && !network && <CommunityNav links={links}/>}
-      {!isMessagePage && !isEmpty(tags) && <TopicList tags={tags} slug={get('slug', community)}/>}
+      {isThreadPage && <ThreadList threads={values(threads)}/>}
+      {!isThreadPage && network && <NetworkNav network={network}/>}
+      {!isThreadPage && !network && <CommunityNav links={links}/>}
+      {!isThreadPage && !isEmpty(tags) && <TopicList tags={tags} slug={get('slug', community)}/>}
     </nav>}
     {opened && <div id='leftNavBackdrop' onClick={close}/>}
   </VelocityTransitionGroup>

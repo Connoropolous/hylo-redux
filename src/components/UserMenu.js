@@ -4,7 +4,7 @@ import { makeUrl } from '../util/navigation'
 import { calliOSBridge } from '../client/util'
 import Icon from './Icon'
 import SearchInput from './SearchInput'
-import { MessagesDropdown } from '../containers/MessagesDropdown'
+import { ThreadsDropdown } from '../containers/ThreadsDropdown'
 import { NotificationsDropdown } from '../containers/Notifications'
 import A from './A'
 import Dropdown from './Dropdown'
@@ -62,7 +62,7 @@ const UserMenu = ({ slug, newMessageCount, newNotificationCount }, { isMobile, d
     <SearchMenuItem/>
 
     <li className='nav-notify-dropdown'>
-      <MessagesDropdown newCount={newMessageCount}/>
+      <ThreadsDropdown newCount={newMessageCount}/>
     </li>
 
     <li className='nav-notify-dropdown'>

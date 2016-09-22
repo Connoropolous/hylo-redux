@@ -8,7 +8,7 @@ import commentsByPost from './commentsByPost'
 import communities from './communities'
 import communitiesByQuery from './communitiesByQuery'
 import communitiesForNetworkNav from './communitiesForNetworkNav'
-import messages from './messages'
+import threads from './threads'
 import networks from './networks'
 import networkEdits from './networkEdits'
 import people from './people'
@@ -170,7 +170,7 @@ const combinedReducers = combineReducers({
   editingTagDescriptions,
   countFreshPostsByQuery: keyedCount(CHECK_FRESHNESS_POSTS, 'postsByQuery'),
   creatingTagAndDescription,
-  messages,
+  threads,
   networks,
   networkEdits,
   pending,
