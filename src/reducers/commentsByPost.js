@@ -16,7 +16,7 @@ export default function (state = {}, action) {
   switch (type) {
     case FETCH_COMMENTS:
       if (meta.subject === 'post') {
-        return appendUniq(state, meta.id, map('id', payload))
+        return appendUniq(state, meta.id, map('id', payload.comments))
       }
       break
     case FETCH_POSTS:

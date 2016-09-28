@@ -6,18 +6,18 @@ const { object, func } = React.PropTypes
 import { find, isEmpty, reduce, set } from 'lodash'
 import { get } from 'lodash/fp'
 import { markdown, sanitize } from 'hylo-utils/text'
+import { navigate } from '../../actions'
 import {
-  updateCommunitySettings,
+  addCommunityModerator,
   fetchCommunitySettings,
   fetchCommunityModerators,
-  addCommunityModerator,
   removeCommunityModerator,
   resetCommunityValidation,
-  validateCommunityAttribute,
-  navigate
-} from '../../actions'
+  updateCommunitySettings,
+  validateCommunityAttribute
+} from '../../actions/communities'
 import config from '../../config'
-const { upstreamHost } = config
+const { host } = config
 const slackClientId = config.slack.clientId
 import { avatarUploadSettings, bannerUploadSettings } from '../../models/community'
 import A from '../../components/A'
@@ -207,25 +207,15 @@ export default class CommunitySettings extends React.Component {
   }
 
   render () {
-    let { community } = this.props
-    let { avatar_url, banner_url } = community
-    let { editing, edited, errors, expand } = this.state
-    let labelProps = {expand, toggle: this.toggleSection}
-    let joinUrl, slugNotUnique, addSlackUrl
-    let { is_admin } = this.props.currentUser
-    let slackerror = this.props.location.query.slackerror
-
-    if (expand.appearance) {
-      slugNotUnique = get('slug.unique', this.props.validation) === false
-    }
-
-    if (expand.access) {
-      joinUrl = communityJoinUrl(community)
-    }
-
-    if (expand.slack) {
-      addSlackUrl = upstreamHost + '/noo/community/' + community.id + '/settings/slack'
-    }
+    const { community } = this.props
+    const { avatar_url, banner_url } = community
+    const { editing, edited, errors, expand } = this.state
+    const labelProps = {expand, toggle: this.toggleSection}
+    const { is_admin } = this.props.currentUser
+    const slackerror = this.props.location.query.slackerror
+    const slugNotUnique = get('slug.unique', this.props.validation) === false
+    const joinUrl = communityJoinUrl(community)
+    const addSlackUrl = `${host}/noo/community/${community.id}/settings/slack`
 
     return <div className='form-sections' id='community-settings'>
       <SectionLabel name='appearance' {...labelProps}>Appearance</SectionLabel>

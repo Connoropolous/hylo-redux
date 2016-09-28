@@ -1,4 +1,3 @@
-import invariant from 'invariant'
 import { push } from 'react-router-redux'
 import { cleanAndStringify } from '../util/caching'
 import { get } from 'lodash/fp'
@@ -22,7 +21,8 @@ export const CREATE_COMMENT = 'CREATE_COMMENT'
 export const CREATE_COMMUNITY = 'CREATE_COMMUNITY'
 export const CREATE_POST = 'CREATE_POST'
 export const CREATE_NETWORK = 'CREATE_NETWORK'
-export const CREATE_TAG_IN_POST_EDITOR = 'CREATE_TAG_IN_POST_EDITOR'
+export const CREATE_TAG_IN_COMMUNITY = 'CREATE_TAG_IN_COMMUNITY'
+export const CREATE_TAG_IN_MODAL = 'CREATE_TAG_IN_MODAL'
 export const EDIT_TAG_DESCRIPTION = 'EDIT_TAG_DESCRIPTION'
 export const EDIT_NEW_TAG_AND_DESCRIPTION = 'EDIT_NEW_TAG_AND_DESCRIPTION'
 export const FETCH_ACTIVITY = 'FETCH_ACTIVITY'
@@ -113,6 +113,7 @@ export const UPDATE_COMMENT_EDITOR = 'UPDATE_COMMENT_EDITOR'
 export const UPDATE_COMMUNITY_EDITOR = 'UPDATE_COMMUNITY_EDITOR'
 export const UPDATE_INVITATION_EDITOR = 'UPDATE_INVITATION_EDITOR'
 export const UPDATE_TAG_INVITATION_EDITOR = 'UPDATE_TAG_INVITATION_EDITOR'
+export const UPDATE_COMMUNITY_CHECKLIST = 'UPDATE_COMMUNITY_CHECKLIST'
 export const UPDATE_COMMUNITY_SETTINGS = 'UPDATE_COMMUNITY_SETTINGS'
 export const UPDATE_COMMUNITY_SETTINGS_PENDING = UPDATE_COMMUNITY_SETTINGS + _PENDING
 export const UPDATE_MEMBERSHIP_SETTINGS = 'UPDATE_MEMBERSHIP_SETTINGS'
@@ -122,6 +123,8 @@ export const UPDATE_NETWORK_PENDING = UPDATE_NETWORK + _PENDING
 export const UPDATE_NETWORK_EDITOR = 'UPDATE_NETWORK_EDITOR'
 export const UPDATE_POST = 'UPDATE_POST'
 export const UPDATE_POST_EDITOR = 'UPDATE_POST_EDITOR'
+export const UPDATE_COMMUNITY_TAG = 'UPDATE_COMMUNITY_TAG'
+export const UPDATE_COMMUNITY_TAG_PENDING = 'UPDATE_COMMUNITY_TAG_PENDING'
 export const UPDATE_USER_SETTINGS = 'UPDATE_USER_SETTINGS'
 export const UPDATE_USER_SETTINGS_PENDING = UPDATE_USER_SETTINGS + _PENDING
 export const UPLOAD_DOC = 'UPLOAD_DOC'
@@ -198,30 +201,6 @@ export function fetchCurrentUser (refresh) {
   }
 }
 
-export function fetchCommunity (id) {
-  return {
-    type: FETCH_COMMUNITY,
-    payload: {api: true, path: `/noo/community/${id}`},
-    meta: {cache: {bucket: 'communities', id, requiredProp: 'settings'}}
-  }
-}
-
-export function fetchCommunitySettings (id) {
-  return {
-    type: FETCH_COMMUNITY_SETTINGS,
-    payload: {api: true, path: `/noo/community/${id}/settings`},
-    meta: {cache: {bucket: 'communities', id, requiredProp: 'beta_access_code'}}
-  }
-}
-
-export function fetchCommunityModerators (id) {
-  return {
-    type: FETCH_COMMUNITY_MODERATORS,
-    payload: {api: true, path: `/noo/community/${id}/moderators`},
-    meta: {cache: {bucket: 'communities', id, requiredProp: 'moderators'}}
-  }
-}
-
 export function navigate (path) {
   return push(path)
 }
@@ -281,90 +260,11 @@ export function updateUserSettings (id, params) {
   }
 }
 
-export function leaveCommunity (communityId) {
-  return {
-    type: LEAVE_COMMUNITY,
-    payload: {api: true, path: `/noo/membership/${communityId}`, method: 'DELETE'},
-    meta: {communityId, optimistic: true}
-  }
-}
-
-export function updateCommunitySettings (id, params) {
-  invariant(params.slug, 'must include slug in params')
-  if (params.leader) params.leader_id = params.leader.id
-  return {
-    type: UPDATE_COMMUNITY_SETTINGS,
-    payload: {api: true, params, path: `/noo/community/${id}`, method: 'POST'},
-    meta: {slug: params.slug, params, optimistic: true}
-  }
-}
-
 export function updateMembershipSettings (communityId, params) {
   return {
     type: UPDATE_MEMBERSHIP_SETTINGS,
     payload: {api: true, params, path: `/noo/membership/${communityId}`, method: 'POST'},
     meta: {communityId, params, optimistic: true}
-  }
-}
-
-export function addCommunityModerator (community, moderator) {
-  return {
-    type: ADD_COMMUNITY_MODERATOR,
-    payload: {api: true, params: {userId: moderator.id}, path: `/noo/community/${community.id}/moderators`, method: 'POST'},
-    meta: {slug: community.slug, moderator, optimistic: true}
-  }
-}
-
-export function removeCommunityModerator (community, moderatorId) {
-  return {
-    type: REMOVE_COMMUNITY_MODERATOR,
-    payload: {api: true, path: `/noo/community/${community.id}/moderator/${moderatorId}`, method: 'DELETE'},
-    meta: {slug: community.slug, moderatorId, optimistic: true}
-  }
-}
-
-export function removeCommunityMember (community, userId, cacheId) {
-  return {
-    type: REMOVE_COMMUNITY_MEMBER,
-    payload: {api: true, path: `/noo/community/${community.id}/member/${userId}`, method: 'DELETE'},
-    meta: {optimistic: true, slug: community.slug, userId, cacheId}
-  }
-}
-
-export function validateCommunityAttribute (key, value, constraint) {
-  return {
-    type: VALIDATE_COMMUNITY_ATTRIBUTE,
-    payload: {api: true, params: {column: key, value, constraint}, path: '/noo/community/validate', method: 'POST'},
-    meta: {key}
-  }
-}
-
-export function resetCommunityValidation (key) {
-  return {
-    type: RESET_COMMUNITY_VALIDATION,
-    meta: {key}
-  }
-}
-
-export function updateCommunityEditor (subtree, changes) {
-  return {
-    type: UPDATE_COMMUNITY_EDITOR,
-    payload: changes,
-    meta: {subtree}
-  }
-}
-
-export function createCommunity (params) {
-  return {
-    type: CREATE_COMMUNITY,
-    payload: {api: true, params, path: '/noo/community', method: 'POST'}
-  }
-}
-
-export function joinCommunityWithCode (code, tagName) {
-  return {
-    type: JOIN_COMMUNITY_WITH_CODE,
-    payload: {api: true, params: {code, tagName}, path: '/noo/community/code', method: 'POST'}
   }
 }
 
@@ -419,14 +319,6 @@ export function resetError (type) {
   }
 }
 
-export function fetchCommunityForInvitation (token) {
-  return {
-    type: FETCH_COMMUNITY_FOR_INVITATION,
-    payload: {api: true, path: `/noo/invitation/${token}`},
-    meta: {token}
-  }
-}
-
 export function useInvitation (token) {
   return {
     type: USE_INVITATION,
@@ -438,8 +330,17 @@ export function useInvitation (token) {
 export function fetchInvitations (communityId, offset = 0, reset) {
   return {
     type: FETCH_INVITATIONS,
-    payload: {api: true, path: `/noo/community/${communityId}/invitations?offset=${offset}`},
-    meta: {communityId, reset}
+    payload: {
+      api: true,
+      path: `/noo/community/${communityId}/invitations?offset=${offset}`
+    },
+    meta: {
+      communityId,
+      reset,
+      cache: {
+        bucket: 'invitations', id: communityId, array: true, offset, limit: 20
+      }
+    }
   }
 }
 
@@ -546,12 +447,12 @@ export function cancelTagDescriptionEdit () {
   return {type: CANCEL_TAG_DESCRIPTION_EDIT}
 }
 
-export function editTagDescription (tag, description) {
-  return {type: EDIT_TAG_DESCRIPTION, payload: {tag, description}}
+export function editTagDescription (tag, description, is_default) {
+  return {type: EDIT_TAG_DESCRIPTION, payload: {tag, description, is_default}}
 }
 
-export function editNewTagAndDescription (tag, description) {
-  return {type: EDIT_NEW_TAG_AND_DESCRIPTION, payload: {tag, description}}
+export function editNewTagAndDescription (tag, description, is_default) {
+  return {type: EDIT_NEW_TAG_AND_DESCRIPTION, payload: {tag, description, is_default}}
 }
 
 export function showTagPopover (tagName, slug, node) {
@@ -572,20 +473,6 @@ export function fetchTagSummary (tagName, id) {
 
 export function closeModal () {
   return {type: CLOSE_MODAL}
-}
-
-export function createTagInPostEditor () {
-  return {
-    type: CREATE_TAG_IN_POST_EDITOR
-  }
-}
-
-export function fetchCommunitiesForNetworkNav (networkId) {
-  return {
-    type: FETCH_COMMUNITIES_FOR_NETWORK_NAV,
-    payload: {api: true, path: `/noo/network/${networkId}/communitiesForNav`},
-    meta: {networkId}
-  }
 }
 
 export function showExpandedPost (id, commentId) {

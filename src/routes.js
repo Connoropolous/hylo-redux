@@ -8,9 +8,9 @@ import AllCommunities, { AllPosts } from './containers/AllCommunities'
 import People from './containers/People'
 import Projects from './containers/Projects'
 import { CreateCommunity, CreateCommunityInvite } from './containers/CreateCommunity'
+import CommunityChecklist from './containers/community/CommunityChecklist'
 import CommunityProfile from './containers/community/CommunityProfile'
 import CommunityPosts from './containers/community/CommunityPosts'
-import CommunityEditor from './containers/community/CommunityEditor'
 import CommunityJoinForm from './containers/community/CommunityJoinForm'
 import CommunityJoinLinkHandler from './containers/community/CommunityJoinLinkHandler'
 import InvitationHandler from './containers/community/InvitationHandler'
@@ -87,6 +87,7 @@ export default function makeRoutes (store) {
     <Route path='create' component={CreateCommunity} onEnter={requireLogin}/>
     <Route path='invite' component={CreateCommunityInvite} onEnter={requireLogin}/>
     <Route path='c/:id/invite' component={CreateCommunityInvite} onEnter={requireLogin}/>
+    <Route path='c/:id/checklist' component={CommunityChecklist} onEnter={requireLogin}/>
 
     <Route path='set-password' component={SetPassword}/>
 
@@ -97,12 +98,13 @@ export default function makeRoutes (store) {
     <Route path='c/:id/new' component={StandalonePostEditor} community onEnter={requireLogin}/>
     <Route path='c/:id/events/new' component={StandalonePostEditor} community type='event' onEnter={requireLogin}/>
     <Route path='c/:id/projects/new' component={StandalonePostEditor} community type='project' onEnter={requireLogin}/>
+    <Route path='p/new' component={StandalonePostEditor} onEnter={requireLogin}/>
+    <Route path='p/:id/edit' component={StandalonePostEditor} onEnter={requireLogin}/>
 
     <Route component={PageWithNav}>
       <Route path='settings' component={UserSettings} onEnter={requireLogin}/>
       <Route path='search' component={Search} onEnter={requireLogin}/>
       <Route path='u/:id' component={PersonProfile} onEnter={requireLogin}/>
-      <Route path='c/new' component={CommunityEditor} onEnter={requireLogin}/>
       <Route path='c/join' component={CommunityJoinForm} onEnter={requireLogin}/>
 
       <Route path='admin' component={Admin} onEnter={requireAdmin}/>
@@ -139,9 +141,7 @@ export default function makeRoutes (store) {
 
       <Route path='t/:id' component={ThreadPage} onEnter={requireLogin}/>
 
-      <Route path='p/new' component={StandalonePostEditor} onEnter={requireLogin}/>
       <Route path='p/:id' component={SinglePost}/>
-      <Route path='p/:id/edit' component={StandalonePostEditor} onEnter={requireLogin}/>
       <Route path='n/new' component={NetworkEditor} onEnter={requireLogin}/>
       <Route path='n/:id' component={NetworkProfile} onEnter={requireLogin}>
         <IndexRoute component={NetworkPosts}/>
