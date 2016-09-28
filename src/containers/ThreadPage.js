@@ -14,12 +14,11 @@ import A from '../components/A'
 import { scrollToComment } from '../util/scrolling'
 import { findError } from '../actions/util'
 import AccessErrorMessage from '../components/AccessErrorMessage'
-import MessageThread from '../components/MessageThread'
+import Thread from '../components/Thread'
 import { getCurrentCommunity } from '../models/community'
 import { denormalizedPost, getComments, getPost } from '../models/post'
 const { array, bool, object, string, func } = React.PropTypes
 
-const subject = 'community'
 
 @prefetch(({ store, dispatch, params: { id }, query }) =>
   dispatch(fetchPost(id))
@@ -34,7 +33,7 @@ const subject = 'community'
     error: findError(state.errors, FETCH_POST, 'posts', id)
   }
 })
-export default class MessageThreadPage extends React.Component {
+export default class ThreadPage extends React.Component {
   static propTypes = {
     post: object,
     community: object,
@@ -67,9 +66,7 @@ export default class MessageThreadPage extends React.Component {
     if (!post || !post.user) return <div className='loading'>Loading...</div>
     const isChild = !!post.parent_post_id
 
-    return <div>
-        <MessageThread post={post} />
-    </div>
+    return <Thread post={post} />
   }
 }
 

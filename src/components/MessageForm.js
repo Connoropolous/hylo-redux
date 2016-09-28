@@ -47,6 +47,7 @@ export default class MessageForm extends React.Component {
     dispatch(createComment(postId, text))
     .then(({ error }) => {
       if (error) return
+      dispatch(updateCommentEditor(postId, '', true))
       trackEvent(ADDED_COMMENT, {post: {id: postId}})
     })
 
@@ -87,10 +88,9 @@ export default class MessageForm extends React.Component {
     }
 
     return <form onSubmit={this.submit} className='message-form'>
-            <input type='text' ref='editor' name='message'
+            <textarea ref='editor' name='message'
               value={text}
               placeholder={placeholder}
-              onBlur={() => updateStore(this.refs.editor.value)}
               onChange={setText}
               onKeyUp={stopTyping}
               onKeyDown={handleKeyDown}/>

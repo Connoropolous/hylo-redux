@@ -3,7 +3,7 @@ import { compose } from 'redux'
 import { connect } from 'react-redux'
 import { defer, prefetch } from 'react-fetcher'
 import { navigate } from '../actions'
-import { values } from 'lodash'
+import { find, values } from 'lodash'
 import { get, map } from 'lodash/fp'
 import cx from 'classnames'
 import ScrollListener from '../components/ScrollListener'
@@ -11,9 +11,10 @@ import Avatar from '../components/Avatar'
 import truncate from 'trunc-html'
 import { humanDate } from '../util/text'
 import { threadUrl } from '../routes'
-import { FETCH_THREADS, markThreadRead, fetchThreads } from '../actions'
+import { FETCH_POSTS, markThreadRead } from '../actions'
+import { fetchPosts } from '../actions/fetchPosts'
 import { getCurrentCommunity } from '../models/community'
-import { denormalizedPost, getComments } from '../models/post'
+import { getPost, denormalizedPost, getComments } from '../models/post'
 const { array, bool, func, number, object } = React.PropTypes
 import decode from 'ent/decode'
 import A from '../components/A'
@@ -24,15 +25,15 @@ import Icon from '../components/Icon'
 export const ThreadsDropdown = connect(
   (state, props) => {
     return { 
-      threads: map(m => denormalizedPost(m, state), values(state.threads)),
-      pending: state.pending[FETCH_THREADS]
+      threads: map(id => denormalizedPost(getPost(id, state), state), state.postsByQuery.threads),
+      pending: state.pending[FETCH_POSTS]
     }
   }
 )(props => {
   const { threads, dispatch, pending } = props
   const newCount = 1
   return <Dropdown alignRight rivalrous='nav' className='thread-list'
-    onFirstOpen={() => dispatch(fetchThreads())}
+    onFirstOpen={() => dispatch(fetchPosts({ cacheId: 'threads', subject: 'threads' }))}
     toggleChildren={<span>
       <Icon name='Message-Smile'/>
       {newCount > 0 && <div className='badge'>{newCount}</div>}
@@ -54,14 +55,13 @@ export const ThreadsDropdown = connect(
 
 const Thread = ({ thread, latestComment }, { currentUser, dispatch }) => {
   const comment = thread.comments[0]
-  const unread = true
+  const lastRead = find(currentUser.last_reads, l => l.post_id === thread.id.toString())
+  const unread = comment && lastRead && new Date(lastRead.last_read_at) < new Date(comment.created_at)
   const { followers } = thread
   const follower = followers.find(f => f.id !== currentUser.id)
-  if (!follower) return null
-  const markAsRead = () => unread && dispatch(markThreadRead(id))
+  if (!comment || !follower) return null
 
-  return <A to={threadUrl(thread.id)} className={cx({unread})}
-    onClick={markAsRead}>
+  return <A to={threadUrl(thread.id)} className={cx({unread})}>
     {unread && <div className='dot-badge'/>}
     <NonLinkAvatar person={follower}/>
     <span>

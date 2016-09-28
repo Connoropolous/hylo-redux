@@ -1,0 +1,67 @@
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: flex-start;
+  padding-top: @top-nav-height;
+  margin-top: -@top-nav-height;
+  .mobile({
+    padding-top: @mobile-top-nav-height;
+    margin-top: -@mobile-top-nav-height;
+  });
+
+  .header {
+    width: 100%;
+    line-height: 34px;
+    min-height: 70px;
+    background-color: @faint-gray-bg;
+    padding: 15px;
+    border-bottom: 1px solid @post-border;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 0;
+
+    .title {
+      display: block;
+      .thread-title-text;
+      text-decoration: none;
+    }  
+  }
+  
+
+  .messages-section {
+    width: 100%;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 0;
+    overflow-y: scroll;
+  }
+
+  .message-form {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 0;
+  }
+
+}
+
+.message {
+
+  .avatar {
+     float: left;
+     background-position: center;
+     background-size: cover;
+     width: 25px;
+     height: 25px;
+     border-radius: 25px;
+  }
+
+  .content {
+    margin-left: 40px;
+  }
+
+}

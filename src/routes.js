@@ -30,7 +30,7 @@ import NetworkPosts from './containers/network/NetworkPosts'
 import NetworkMembers from './containers/network/NetworkMembers'
 import AboutNetwork from './containers/network/AboutNetwork'
 import IconTest from './containers/IconTest'
-import MessageThreadPage from './containers/MessageThreadPage'
+import ThreadPage from './containers/ThreadPage'
 import NetworkCommunities from './containers/network/NetworkCommunities'
 import NetworkEditor from './containers/network/NetworkEditor'
 import Search from './containers/Search'
@@ -137,7 +137,7 @@ export default function makeRoutes (store) {
         <Route path='tag/:tagName' component={TagPosts} onEnter={requireLogin} />
       </Route>
 
-      <Route path='t/:id' component={MessageThreadPage} onEnter={requireLogin}/>
+      <Route path='t/:id' component={ThreadPage} onEnter={requireLogin}/>
 
       <Route path='p/new' component={StandalonePostEditor} onEnter={requireLogin}/>
       <Route path='p/:id' component={SinglePost}/>

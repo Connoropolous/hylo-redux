@@ -39,7 +39,6 @@ export const FETCH_INVITATIONS = 'FETCH_INVITATIONS'
 export const FETCH_LEFT_NAV_TAGS = 'FETCH_LEFT_NAV_TAGS'
 export const FETCH_LINK_PREVIEW = 'FETCH_LINK_PREVIEW'
 export const FETCH_LIVE_STATUS = 'FETCH_LIVE_STATUS'
-export const FETCH_THREADS = 'FETCH_THREADS'
 export const FETCH_NETWORK = 'FETCH_NETWORK'
 export const FETCH_ONBOARDING = 'FETCH_ONBOARDING'
 export const FETCH_PEOPLE = 'FETCH_PEOPLE'
@@ -260,21 +259,6 @@ export function findOrCreateThread (params) {
   return {
     type: FIND_OR_CREATE_THREAD,
     payload: {api: true, params, path: '/noo/thread', method: 'POST'}
-  }
-}
-
-export function fetchThreads () {
-  let querystring = cleanAndStringify({comments: true})
-
-  return {
-    type: FETCH_THREADS,
-    payload: {api: true,  path: `/noo/threads?${querystring}`},
-    meta: {
-      cache: {bucket: 'threads', array: true},
-      addDataToStore: {
-        people: get('people')
-      }
-    }
   }
 }
 

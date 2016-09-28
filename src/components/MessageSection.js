@@ -2,7 +2,6 @@ import React from 'react'
 import { isEmpty, sortBy, values } from 'lodash'
 const { array, bool, func, object } = React.PropTypes
 import cx from 'classnames'
-import MessageForm from './MessageForm'
 import PeopleTyping from './PeopleTyping'
 import Message from './Message'
 import { appendComment } from '../actions/comments'
@@ -20,22 +19,6 @@ export default class MessageSection extends React.Component {
     dispatch: func
   }
 
-  componentDidMount () {
-    const { post: { id }} = this.props
-    const { dispatch } = this.context
-    this.socket = getSocket()
-    this.socket.post(socketUrl(`/noo/post/${id}/subscribe`))
-    this.socket.on('commentAdded', c => dispatch(appendComment(id, c)))
-  }
-
-  componentWillUnmount () {
-    const { post: { id }} = this.props
-    if (this.socket) {
-      this.socket.post(socketUrl(`/noo/post/${id}/unsubscribe`))
-      this.socket.off('commentAdded')
-    }
-  }
-
   render () {
     let { post, messages } = this.props
     const { currentUser, community } = this.context
@@ -48,7 +31,6 @@ export default class MessageSection extends React.Component {
         community={community}
         key={m.id}/>)}
       <PeopleTyping showNames={true}/>
-      <MessageForm postId={post.id} />
     </div>
   }
 }

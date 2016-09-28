@@ -6,6 +6,7 @@ import {
   humanDate, nonbreaking, present, textLength, truncate, appendInP
 } from '../util/text'
 import MessageSection from './MessageSection'
+import MessageForm from './MessageForm'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import { getComments, getCommunities } from '../models/post'
@@ -15,7 +16,7 @@ import decode from 'ent/decode'
 
 const spacer = <span>&nbsp; •&nbsp; </span>
 
-class MessageThread extends React.Component {
+class Thread extends React.Component {
   static propTypes = {
     post: object,
     communities: array,
@@ -30,13 +31,30 @@ class MessageThread extends React.Component {
     return {post: this.props.post}
   }
 
+  componentDidMount () {
+    const { post: { id }} = this.props
+    const { dispatch } = this.context
+    this.socket = getSocket()
+    this.socket.post(socketUrl(`/noo/post/${id}/subscribe`))
+    this.socket.on('commentAdded', c => dispatch(appendComment(id, c)))
+  }
+
+  componentWillUnmount () {
+    const { post: { id }} = this.props
+    if (this.socket) {
+      this.socket.post(socketUrl(`/noo/post/${id}/unsubscribe`))
+      this.socket.off('commentAdded')
+    }
+  }
+
   render () {
     const { post, messages } = this.props
-    const classes = cx('dm')
+    const classes = cx('thread')
 
     return <div className={classes}>
       <Header />
       <MessageSection {...{post, messages}}/>
+      <MessageForm postId={post.id} />
     </div>
   }
 }
@@ -49,11 +67,12 @@ export default compose(
       community: getCurrentCommunity(state)
     }
   })
-)(MessageThread)
+)(Thread)
 
 export const Header = (props, { post }) => {
   const followers = post.followers
   const beyondTwo = followers.length - 2
+  if (followers.length < 2) return null
   const title = followers.length > 2 ?
     `You, ${followers[1].name}, and ${beyondTwo} other${beyondTwo == 1 ? '' : 's'}` :
     `You and ${followers[1].name}`
