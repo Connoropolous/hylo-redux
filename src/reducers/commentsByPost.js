@@ -3,7 +3,6 @@ import { appendUniq } from './util'
 import {
   APPEND_COMMENT,
   FETCH_COMMENTS,
-  FETCH_MESSAGES,
   FETCH_POST,
   FETCH_POSTS,
   CREATE_COMMENT

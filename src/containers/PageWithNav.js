@@ -1,6 +1,4 @@
 import React from 'react'
-import { compose } from 'redux'
-import { prefetch } from 'react-fetcher'
 import { connect } from 'react-redux'
 import { VelocityComponent } from 'velocity-react'
 import TopNav from '../components/TopNav'
@@ -97,15 +95,15 @@ PageWithNav.propTypes = {
 PageWithNav.contextTypes = {isMobile: bool, dispatch: func, currentUser: object}
 
 export default connect((state, props) => {
-    const { leftNavIsOpen, tagsByCommunity, communitiesForNetworkNav } = state
-    const community = getCurrentCommunity(state)
-    const network = getCurrentNetwork(state)
-    const networkCommunities =
-      communitiesForNetworkNav[network ? network.id : get('network.id', community)]
+  const { leftNavIsOpen, tagsByCommunity, communitiesForNetworkNav } = state
+  const community = getCurrentCommunity(state)
+  const network = getCurrentNetwork(state)
+  const networkCommunities =
+    communitiesForNetworkNav[network ? network.id : get('network.id', community)]
 
-    return {
-      leftNavIsOpen, community, networkCommunities, network,
-      tags: get(get('slug', community), tagsByCommunity) || aggregatedTags(state),
-      path: state.routing.locationBeforeTransitions.pathname
-    }
-  })(PageWithNav)
+  return {
+    leftNavIsOpen, community, networkCommunities, network,
+    tags: get(get('slug', community), tagsByCommunity) || aggregatedTags(state),
+    path: state.routing.locationBeforeTransitions.pathname
+  }
+})(PageWithNav)

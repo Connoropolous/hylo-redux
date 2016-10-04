@@ -3,7 +3,7 @@ import { A, IndexA } from './A'
 import Icon from './Icon'
 import Tooltip from './Tooltip'
 import { VelocityTransitionGroup } from 'velocity-react'
-import { isEmpty, values } from 'lodash'
+import { isEmpty } from 'lodash'
 import { filter, get } from 'lodash/fp'
 import { tagUrl } from '../routes'
 import { showAllTags } from '../actions/tags'
@@ -108,13 +108,12 @@ export const LeftNav = ({ opened, community, network, tags, close, links }, { is
     event.stopPropagation()
   }
 
-  const label = isMobile ? 'Menu' : 'Topics'
-
   return <span><VelocityTransitionGroup {...animations}>
     {opened && <nav id='leftNav' onClick={() => isMobile && close()}>
-      <MenuButton onClick={onMenuClick} label={label} showClose/>
-      {network && <NetworkNav network={network}/>}
-      {!network && <CommunityNav links={links}/>}
+      <MenuButton onClick={onMenuClick} label={isMobile ? 'Menu' : 'Topics'} showClose/>
+      {network
+        ? <NetworkNav network={network} />
+        : <CommunityNav links={links}/>}
       {!isEmpty(tags) && <TopicList tags={tags} slug={get('slug', community)}/>}
     </nav>}
     {opened && <div id='leftNavBackdrop' onClick={close}/>}
