@@ -248,23 +248,6 @@ export function typeahead (text, id, params) {
   }
 }
 
-export function updatePostEditor (payload, id) {
-  return {
-    type: UPDATE_POST_EDITOR,
-    payload,
-    meta: {id}
-  }
-}
-
-// id refers to the id of the editing context, e.g. 'new-event'
-export function createPost (id, params) {
-  return {
-    type: CREATE_POST,
-    payload: {api: true, params, path: '/noo/post', method: 'POST'},
-    meta: {id}
-  }
-}
-
 export function clearCache (bucket, id) {
   return {
     type: CLEAR_CACHE,
