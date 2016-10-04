@@ -8,6 +8,7 @@ import commentsByPost from './commentsByPost'
 import communities from './communities'
 import communitiesByQuery from './communitiesByQuery'
 import communitiesForNetworkNav from './communitiesForNetworkNav'
+import messageEdits from './messageEdits'
 import networks from './networks'
 import networkEdits from './networkEdits'
 import people from './people'
@@ -39,6 +40,7 @@ import {
   FETCH_PEOPLE,
   FETCH_POSTS,
   FETCH_THANKS,
+  FIND_OR_CREATE_THREAD,
   HIDE_TAG_POPOVER,
   LOGIN,
   NAVIGATE,
@@ -108,6 +110,18 @@ const combinedReducers = combineReducers({
     return state
   },
 
+  threadsByUser: (state = {}, action) => {
+    let { error, type, payload, meta } = action
+    if (error) return state
+
+    switch (type) {
+      case FIND_OR_CREATE_THREAD:
+        return {...state, [meta.messageTo]: payload.id} 
+    }
+
+    return state
+  },
+
   leftNavIsOpen: (state = false, action) => {
     let { error, type } = action
     if (error) return state
@@ -169,6 +183,7 @@ const combinedReducers = combineReducers({
   editingTagDescriptions,
   countFreshPostsByQuery: keyedCount(CHECK_FRESHNESS_POSTS, 'postsByQuery'),
   creatingTagAndDescription,
+  messageEdits,
   networks,
   networkEdits,
   pending,

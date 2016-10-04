@@ -82,7 +82,7 @@ export class ModalWrapper extends React.Component {
         clickToClose = true
         break
       case 'direct-message':
-          modal = <DirectMessageModal userId={params.userId}/>
+          modal = <DirectMessageModal userId={params.userId} userName={params.userName} onCancel={close}/>
           clickToClose = true
           break
       case 'notifications':

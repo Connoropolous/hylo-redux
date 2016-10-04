@@ -11,7 +11,7 @@ import Avatar from '../components/Avatar'
 import truncate from 'trunc-html'
 import { humanDate } from '../util/text'
 import { threadUrl } from '../routes'
-import { FETCH_POSTS, markThreadRead } from '../actions'
+import { FETCH_POSTS, markThreadRead, showDirectMessage } from '../actions'
 import { fetchPosts } from '../actions/fetchPosts'
 import { getCurrentCommunity } from '../models/community'
 import { getPost, denormalizedPost, getComments } from '../models/post'
@@ -39,17 +39,14 @@ export const ThreadsDropdown = connect(
       {newCount > 0 && <div className='badge'>{newCount}</div>}
     </span>}>
     {!pending && <li className='top'>
-      <div className='newMessage' onClick={() => {}}>
-        <Icon name='Compose'/><span>New Message</span>
+      <div className='newMessage' onClick={() => dispatch(showDirectMessage())}>
+        <Icon name='Compose'/><span className='button-text'>New Message</span>
       </div>
     </li>}
     {pending && <li className='loading'>Loading...</li>}
     {threads.slice(0, 20).map(thread => <li key={thread.id}>
       <Thread thread={thread}/>
     </li>)}
-    {!pending && <li className='bottom'>
-      <a>See all</a>
-    </li>}
   </Dropdown>
 })
 

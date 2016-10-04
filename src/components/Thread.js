@@ -1,4 +1,5 @@
 import React from 'react'
+import { filter } from 'lodash'
 import { get } from 'lodash/fp'
 const { array, bool, func, object, string } = React.PropTypes
 import cx from 'classnames'
@@ -7,6 +8,7 @@ import {
 } from '../util/text'
 import MessageSection from './MessageSection'
 import MessageForm from './MessageForm'
+import PeopleTyping from './PeopleTyping'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import { appendComment } from '../actions/comments'
@@ -21,10 +23,11 @@ const spacer = <span>&nbsp; •&nbsp; </span>
 class Thread extends React.Component {
   static propTypes = {
     post: object,
-    communities: array,
-    community: object,
-    messages: array,
-    dispatch: func,
+    messages: array
+  }
+
+  static contextTypes = {
+    dispatch: func
   }
 
   static childContextTypes = {post: object}
@@ -56,6 +59,7 @@ class Thread extends React.Component {
     return <div className={classes}>
       <Header />
       <MessageSection {...{post, messages}}/>
+      <PeopleTyping showNames={true}/>
       <MessageForm postId={post.id} />
     </div>
   }
@@ -64,23 +68,25 @@ class Thread extends React.Component {
 export default compose(
   connect((state, { post }) => {
     return {
-      messages: getComments(post, state),
-      communities: getCommunities(post, state),
-      community: getCurrentCommunity(state)
+      messages: getComments(post, state)
     }
   })
 )(Thread)
 
-export const Header = (props, { post }) => {
+export const Header = (props, { currentUser, post }) => {
   const followers = post.followers
   const beyondTwo = followers.length - 2
-  if (followers.length < 2) return null
-  const title = followers.length > 2 ?
-    `You, ${followers[1].name}, and ${beyondTwo} other${beyondTwo == 1 ? '' : 's'}` :
-    `You and ${followers[1].name}`
+  const { id } = currentUser
+  const otherFollowers = filter(followers, f => f.id !== id)
+  const title = otherFollowers.length > 1 ?
+    `You, ${followers[0].name}, and ${beyondTwo} other${beyondTwo == 1 ? '' : 's'}` :
+    `You and ${otherFollowers[0].name}`
 
   return <div className='header'>
     <div className='title'>{title}</div>
   </div>
 }
-Header.contextTypes = {post: object}
+Header.contextTypes = {
+  post: object,
+  currentUser: object
+}

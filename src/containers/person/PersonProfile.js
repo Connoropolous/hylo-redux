@@ -125,7 +125,14 @@ const PersonProfile = compose(
         Joined {joinDate}
       </p>
       <p className='bio'>{bio}</p>
-      { currentUser && <button onClick={() => dispatch(showDirectMessage(person.id))}>Message</button> }
+      { currentUser &&
+        person.id !== currentUser.id &&
+        <button
+          onClick={() => dispatch(showDirectMessage(person.id, person.name))}
+          className='dm-user'>
+          <Icon name='Message-Smile'/>
+          Message
+      </button>}
     </div>
     {some(tags) && <div className='skills'>
       <h3>Skills</h3>

@@ -5,7 +5,8 @@ import { CREATE_COMMENT } from '../actions'
 import { createComment, updateCommentEditor } from '../actions/comments'
 import { ADDED_COMMENT, trackEvent } from '../util/analytics'
 import { textLength } from '../util/text'
-import { onCmdOrCtrlEnter } from '../util/textInput'
+import { onEnterNoShift } from '../util/textInput'
+import AutosizingTextarea from './AutosizingTextarea'
 import cx from 'classnames'
 import { getSocket, socketUrl } from '../client/websockets'
 var { array, bool, func, object, string } = React.PropTypes
@@ -21,7 +22,6 @@ const STOPPED_TYPING_WAIT_TIME = 8000
 @connect((state, { postId }) => {
   return ({
     currentUser: get(state, 'people.current'),
-    editingTagDescriptions: state.editingTagDescriptions,
     text: state.commentEdits.new[postId]
   })
 })
@@ -39,12 +39,12 @@ export default class MessageForm extends React.Component {
   }
 
   submit = event => {
-    const { dispatch, postId } = this.props
+    const { dispatch, postId, text } = this.props
     if (event) event.preventDefault()
-    const text = this.refs.editor.value.replace(/<p>&nbsp;<\/p>$/m, '')
-    if (!text || textLength(text) < 2) return false
+    const cleanText = text.replace(/<p>&nbsp;<\/p>$/m, '')
+    if (!cleanText || textLength(cleanText) < 2) return false
 
-    dispatch(createComment(postId, text))
+    dispatch(createComment(postId, cleanText))
     .then(({ error }) => {
       if (error) return
       dispatch(updateCommentEditor(postId, '', true))
@@ -79,11 +79,11 @@ export default class MessageForm extends React.Component {
     const startTyping = throttle(startedTyping, STARTED_TYPING_INTERVAL, {trailing: false})
     const handleKeyDown = e => {
       startTyping()
-      onCmdOrCtrlEnter(e => {
+      onEnterNoShift(e => {
         stoppedTyping()
         e.preventDefault()
-        updateStore('')
         this.submit()
+        updateStore('')
       }, e)
     }
 

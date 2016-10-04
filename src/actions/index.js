@@ -50,6 +50,8 @@ export const FETCH_TAG = 'FETCH_TAG'
 export const FETCH_TAGS = 'FETCH_TAGS'
 export const FETCH_TAG_SUMMARY = 'FETCH_TAG_SUMMARY'
 export const FETCH_THANKS = 'FETCH_THANKS'
+export const FIND_OR_CREATE_THREAD = 'FIND_OR_CREATE_THREAD'
+export const FIND_OR_CREATE_THREAD_PENDING = FIND_OR_CREATE_THREAD + _PENDING
 export const FOLLOW_POST = 'FOLLOW_POST'
 export const FOLLOW_POST_PENDING = FOLLOW_POST + _PENDING
 export const FOLLOW_TAG = 'FOLLOW_TAG'
@@ -118,6 +120,8 @@ export const UPDATE_COMMUNITY_SETTINGS = 'UPDATE_COMMUNITY_SETTINGS'
 export const UPDATE_COMMUNITY_SETTINGS_PENDING = UPDATE_COMMUNITY_SETTINGS + _PENDING
 export const UPDATE_MEMBERSHIP_SETTINGS = 'UPDATE_MEMBERSHIP_SETTINGS'
 export const UPDATE_MEMBERSHIP_SETTINGS_PENDING = UPDATE_MEMBERSHIP_SETTINGS + _PENDING
+export const UPDATE_MESSAGE_EDITOR = 'UPDATE_MESSAGE_EDITOR'
+export const UPDATE_MESSAGE_EDITOR_PENDING = UPDATE_MESSAGE_EDITOR + _PENDING
 export const UPDATE_NETWORK = 'UPDATE_NETWORK'
 export const UPDATE_NETWORK_PENDING = UPDATE_NETWORK + _PENDING
 export const UPDATE_NETWORK_EDITOR = 'UPDATE_NETWORK_EDITOR'
@@ -231,13 +235,6 @@ export function createPost (id, params) {
     type: CREATE_POST,
     payload: {api: true, params, path: '/noo/post', method: 'POST'},
     meta: {id}
-  }
-}
-
-export function findOrCreateThread (params) {
-  return {
-    type: FIND_OR_CREATE_THREAD,
-    payload: {api: true, params, path: '/noo/thread', method: 'POST'}
   }
 }
 
@@ -479,8 +476,8 @@ export function showExpandedPost (id, commentId) {
   return {type: SHOW_EXPANDED_POST, payload: {id, commentId}}
 }
 
-export function showDirectMessage (userId) {
-  return {type: SHOW_DIRECT_MESSAGE, payload: {userId}}
+export function showDirectMessage (userId, userName) {
+  return {type: SHOW_DIRECT_MESSAGE, payload: {userId, userName}}
 }
 
 export function updateComment (commentId, text, tagDescriptions) {

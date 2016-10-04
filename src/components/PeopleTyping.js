@@ -18,7 +18,7 @@ export default class PeopleTyping extends React.Component {
 
   componentDidMount () {
     this.socket = getSocket() 
-    this.socket.on('userTyping', this.userTyping)
+    this.socket.on('userTyping', this.userTyping.bind(this))
   }
 
   componentWillUnmount () {

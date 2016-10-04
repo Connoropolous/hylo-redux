@@ -16,10 +16,8 @@
 
   .header {
     width: 100%;
-    line-height: 34px;
-    min-height: 70px;
     background-color: @faint-gray-bg;
-    padding: 15px;
+    padding: 15px 15px 15px 30px;
     border-bottom: 1px solid @post-border;
     flex-grow: 0;
     flex-shrink: 0;
@@ -39,29 +37,124 @@
     flex-shrink: 0;
     flex-basis: 0;
     overflow-y: scroll;
+    background-color: #FFF;
+    border-bottom: 1px solid @post-border; 
+    padding: 10px 0;
+
+    .message {
+      padding: 5px 0 5px 30px;    
+
+      .avatar {
+        float: left;
+        background-position: center;
+        background-size: cover;
+        width: @avatar-size-default;
+        height: @avatar-size-default;
+        border-radius: @avatar-size-default;
+      }
+
+      .content {
+        margin-left: 50px;
+
+        strong.name {
+          color: @damian-green;
+          margin-right: 8px;
+        }
+
+        .date {
+          color: @faint-gray-text;
+        }
+      }
+    }
+  }
+
+  .typing {
+    width: 100%;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 0;
+    background: #FFF;
+    color: @faint-gray-text;
+    padding: 10px 0 10px 30px;
+    border-bottom: 1px solid @post-border; 
+
+    > div {
+      display: inline-block;
+    }
+
+    .chillipsis {
+      margin-right: 15px;
+    }
+
+    .mobile({
+      padding-left: @mobile-side-margin;
+    });
   }
 
   .message-form {
     flex-grow: 0;
     flex-shrink: 0;
     flex-basis: 0;
+    width: 100%;
+    background: #FFF;
+
+    textarea {
+      width: 100%;
+      resize: none;
+      padding: 15px;
+      border: none;
+
+      &:focus {
+        outline: none;
+      }
+    }
   }
 
 }
 
-.message {
+#direct-message {
+  .title .chooser {
+    display: inline-block;
 
-  .avatar {
-     float: left;
-     background-position: center;
-     background-size: cover;
-     width: 25px;
-     height: 25px;
-     border-radius: 25px;
+    input {
+      width: 200px;
+    } 
+  }
+}
+
+.message-to-user {
+  padding: 15px;
+
+  textarea {
+    width: 100%;
+    padding: 10px;
+    min-height: 60px;
+    margin-bottom: 10px;
+    resize: none;
+    border: none;
+
+    &:focus {
+      outline: 1px solid #EEE;
+    }
   }
 
-  .content {
-    margin-left: 40px;
+  input[type='submit'] {
+    .round-button;
+
+    color: @faint-gray-text;
+    background-color: white;
+    border: 1px solid @faint-gray-border;
+    margin-right: 10px;
+
+    &.enabled {
+      border: 1px solid transparent;
+      color: white;
+      background-color: @damian-green;
+    }
+  }
+
+  .help-text {
+    font-size: 12px;
   }
 
 }
