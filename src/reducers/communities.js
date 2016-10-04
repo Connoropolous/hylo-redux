@@ -8,7 +8,6 @@ import {
   FETCH_COMMUNITY_SETTINGS,
   FETCH_COMMUNITY_MODERATORS,
   FETCH_COMMUNITIES,
-  FETCH_CURRENT_USER,
   UPDATE_COMMUNITY_SETTINGS_PENDING,
   ADD_COMMUNITY_MODERATOR_PENDING,
   REMOVE_COMMUNITY_MODERATOR_PENDING,
@@ -46,11 +45,6 @@ export default function (state = {}, action) {
     case FETCH_COMMUNITY_MODERATORS:
       community = {...state[meta.cache.id], moderators: payload}
       return {...state, [meta.cache.id]: community}
-    case FETCH_CURRENT_USER:
-      if (payload && payload.memberships) {
-        return mergeList(state, payload.memberships.map(m => m.community), 'slug')
-      }
-      break
     case UPDATE_COMMUNITY_SETTINGS_PENDING:
       if (meta.params.active === false) {
         return omit(state, meta.slug)

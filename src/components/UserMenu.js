@@ -54,8 +54,9 @@ class SearchMenuItem extends React.Component {
 const UserMenu = ({ slug, newMessageCount, newNotificationCount }, { isMobile, dispatch, currentUser }) => {
   const doLogout = () => {
     calliOSBridge({type: 'logout'})
-    dispatch(logout())
     dispatch(navigate('/login'))
+    dispatch(logout())
+    return false
   }
 
   return <ul className='right'>
@@ -99,7 +100,7 @@ const UserMenu = ({ slug, newMessageCount, newNotificationCount }, { isMobile, d
           </A>
         </li>}
         <li>
-          <a href='#' onClick={doLogout}>
+          <a onClick={doLogout}>
             <Icon name='Fail'/> Log out
           </a>
         </li>

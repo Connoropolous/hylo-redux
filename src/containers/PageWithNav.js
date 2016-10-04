@@ -44,7 +44,7 @@ const PageWithNav = (props, context) => {
     if (!isMobile) {
       setTimeout(() => {
         const settings = {leftNavIsOpen: open}
-        dispatch(updateUserSettings(currentUser.id, {settings}))
+        dispatch(updateUserSettings({settings}))
       }, 5000)
     }
   }

@@ -135,7 +135,12 @@ export function createCommunity (params) {
 export function joinCommunityWithCode (code, tagName) {
   return {
     type: JOIN_COMMUNITY_WITH_CODE,
-    payload: {api: true, params: {code, tagName}, path: '/noo/community/code', method: 'POST'}
+    payload: {api: true, params: {code, tagName}, path: '/noo/community/code', method: 'POST'},
+    meta: {
+      addDataToStore: {
+        communities: payload => [payload.community]
+      }
+    }
   }
 }
 
@@ -153,7 +158,7 @@ export function updateCommunitySettings (id, params) {
   return {
     type: UPDATE_COMMUNITY_SETTINGS,
     payload: {api: true, params, path: `/noo/community/${id}`, method: 'POST'},
-    meta: {slug: params.slug, params, optimistic: true}
+    meta: {id, slug: params.slug, params, optimistic: true}
   }
 }
 

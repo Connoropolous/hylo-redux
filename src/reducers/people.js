@@ -1,4 +1,4 @@
-import { filter, get, mergeWith, pick, find, indexOf, map } from 'lodash'
+import { filter, get, mergeWith, find, indexOf, map } from 'lodash'
 import { isNull, omitBy } from 'lodash/fp'
 import { debug } from '../util/logging'
 import {
@@ -53,7 +53,9 @@ const normalize = person => {
     recent_offer: null,
     recent_request_id: get(person.recent_request, 'id'),
     recent_offer_id: get(person.recent_offer, 'id'),
-    left_nav_tags: null
+    left_nav_tags: null,
+    people: null,
+    communities: null
   })
 }
 
@@ -61,6 +63,12 @@ const updateCurrentUser = (user, params) =>
   mergeWith({...user}, params, (objV, srcV, key, obj, src) => {
     if (key === 'tags') return srcV
   })
+
+const normalizeMembership = membership => omitBy(isNull, {
+  ...membership,
+  community: null,
+  left_nav_tags: null
+})
 
 export default function (state = {}, action) {
   const { type, error, payload, meta } = action
@@ -79,12 +87,12 @@ export default function (state = {}, action) {
         [currentUser.id]: null
       }
     case UPDATE_USER_SETTINGS_PENDING:
-      let { params, id } = meta
+      let { params } = meta
       const newCurrentUser = updateCurrentUser(state.current, params)
       return {
         ...state,
         current: newCurrentUser,
-        [id]: newCurrentUser
+        [state.current.id]: newCurrentUser
       }
     case LEAVE_COMMUNITY_PENDING:
       let memberships = filter(state.current.memberships, m => m.community_id !== meta.communityId)
@@ -106,27 +114,12 @@ export default function (state = {}, action) {
       }
     case UPDATE_COMMUNITY_SETTINGS_PENDING:
       if (meta.params.active === false) {
-        memberships = filter(state.current.memberships, m => m.community.slug !== meta.params.slug)
+        memberships = filter(state.current.memberships, m => m.community_id !== meta.id)
         return {
           ...state,
           current: {...state.current, memberships}
         }
       }
-
-      var oldMembership = find(state.current.memberships, m => m.community.slug === meta.params.slug)
-      var newMembership = {
-        ...oldMembership,
-        community: {...oldMembership.community, ...pick(meta.params, 'name', 'slug', 'avatar_url')}
-      }
-
-      return {
-        ...state,
-        current: {
-          ...state.current,
-          memberships: replaceInArray(state.current.memberships, oldMembership, newMembership)
-        }
-      }
-
   }
 
   if (!payload) return state
@@ -160,7 +153,10 @@ export default function (state = {}, action) {
     case USE_INVITATION:
       return {
         ...state,
-        current: {...state.current, memberships: [payload, ...state.current.memberships]}
+        current: {...state.current, memberships: [
+          normalizeMembership(payload),
+          ...state.current.memberships
+        ]}
       }
     case FETCH_ACTIVITY:
       if (meta.resetCount) {

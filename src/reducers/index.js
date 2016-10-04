@@ -31,7 +31,9 @@ import {
   CANCEL_POST_EDIT,
   CANCEL_TYPEAHEAD,
   CHECK_FRESHNESS_POSTS,
+  CLEAR_INVITATION_EDITOR,
   CLOSE_MODAL,
+  CONTINUE_LOGIN,
   CREATE_COMMUNITY,
   CREATE_NETWORK,
   FETCH_ACTIVITY,
@@ -41,6 +43,7 @@ import {
   FETCH_POSTS,
   FETCH_THANKS,
   FIND_OR_CREATE_THREAD,
+  FINISH_LOGIN,
   HIDE_TAG_POPOVER,
   LOGIN,
   NAVIGATE,
@@ -155,6 +158,11 @@ const combinedReducers = combineReducers({
         break
       case SET_LOGIN_ERROR:
         if (payload) return {error: payload}
+        break
+      case CONTINUE_LOGIN:
+        return {...state, shouldRedirect: true, query: payload}
+      case FINISH_LOGIN:
+        return {}
     }
     return state
   },
@@ -274,6 +282,8 @@ const combinedReducers = combineReducers({
     }
 
     switch (type) {
+      case CREATE_COMMUNITY:
+        return {}
       case UPDATE_COMMUNITY_EDITOR:
         return {
           ...state,
@@ -429,6 +439,8 @@ const combinedReducers = combineReducers({
           error = failures.map(r => `Couldn't send to ${r.email}: ${r.error}.`).join(' ')
         }
         return {...state, success, error}
+      case CLEAR_INVITATION_EDITOR:
+        return {}
     }
     return state
   },
@@ -446,20 +458,20 @@ const combinedReducers = combineReducers({
     return state
   },
 
-  showModal: (state = {}, action) => {
+  openModals: (state = [], action) => {
     switch (action.type) {
       case SHOW_MODAL:
-        return {show: action.meta.name, params: action.payload}
+        return state.concat({type: action.meta.name, params: action.payload})
       case SHOW_ALL_TAGS:
-        return {show: 'tags'}
+        return state.concat({type: 'tags'})
       case SHOW_SHARE_TAG:
-        return {show: 'share-tag', params: action.payload}
+        return state.concat({type: 'share-tag', params: action.payload})
       case SHOW_EXPANDED_POST:
-        return {show: 'expanded-post', params: action.payload}
+        return state.concat({type: 'expanded-post', params: action.payload})
       case SHOW_DIRECT_MESSAGE:
-          return {show: 'direct-message', params: action.payload}
+          return state.concat({type: 'direct-message', params: action.payload})
       case CLOSE_MODAL:
-        return null
+        return state.slice(0, -1)
     }
 
     return state
