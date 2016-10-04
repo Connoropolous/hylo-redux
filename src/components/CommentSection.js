@@ -62,7 +62,7 @@ export default class CommentSection extends React.Component {
         community={community}
         expanded={expanded}
         key={c.id}/>)}
-      <PeopleTyping showNames={true}/>
+      <PeopleTyping showNames={false}/>
       {currentUser && <CommentForm postId={post.id} {...{placeholder}}/>}
     </div>
   }

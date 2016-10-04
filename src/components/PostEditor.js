@@ -143,7 +143,7 @@ export class PostEditor extends React.Component {
     let { postEdit } = this.props
     const { title, subeditor } = this.refs
 
-    /*if (!postEdit.name) {
+    if (!postEdit.name) {
       window.alert('The title of a post cannot be blank.')
       title.focus()
       return Promise.resolve(false)
@@ -152,7 +152,7 @@ export class PostEditor extends React.Component {
     if (isEmpty(postEdit.community_ids)) {
       window.alert('Please pick at least one community.')
       return Promise.resolve(false)
-    }*/
+    }
 
     if (subeditor) {
       const subvalidate = subeditor.validate || subeditor.getWrappedInstance().validate
@@ -187,8 +187,7 @@ export class PostEditor extends React.Component {
     const params = {
       type: this.editorType(),
       ...postEdit,
-      ...attachmentParams(post && post.media, postEdit.media),
-      messageTo: [5]
+      ...attachmentParams(post && post.media, postEdit.media)
     }
 
     dispatch((post ? updatePost : createPost)(id, params))

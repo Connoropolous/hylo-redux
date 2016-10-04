@@ -17,9 +17,12 @@ const mainColumnWidth = 688 // defined in CSS
 
 const modalStyle = isMobile => {
   if (typeof window === 'undefined') return {}
+  const windowWidth = window.innerWidth 
+  const pageContent = document.getElementById('cover-image-page-content')
+  const webMargin = pageContent ? position(pageContent).x : (windowWidth - mainColumnWidth) / 2 
   return {
     marginLeft: isMobile ? 0
-      : position(document.getElementById('cover-image-page-content')).x,
+      : webMargin, 
     width: Math.min(mainColumnWidth,
       get(document.getElementById('main'), 'offsetWidth') || mainColumnWidth)
   }
