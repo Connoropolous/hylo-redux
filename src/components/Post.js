@@ -74,7 +74,7 @@ class Post extends React.Component {
       {linkPreview && <LinkPreview {...{linkPreview}}/>}
       <div className='voting post-section'><VoteButton/><Voters/></div>
       <Attachments/>
-      <CommentSection {...{post, expanded, onExpand, comments}} showNames={false}/>
+      <CommentSection {...{post, expanded, onExpand, comments}}/>
     </div>
   }
 }
