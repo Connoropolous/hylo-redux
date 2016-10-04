@@ -496,15 +496,6 @@ export function showDirectMessage (userId, userName) {
   return {type: SHOW_DIRECT_MESSAGE, payload: {userId, userName}}
 }
 
-export function updateComment (commentId, text, tagDescriptions) {
-  const params = {text, tagDescriptions}
-  return {
-    type: UPDATE_COMMENT,
-    payload: {api: true, path: `/noo/comment/${commentId}`, params, method: 'POST'},
-    meta: {id: commentId, text, optimistic: true}
-  }
-}
-
 export function registerTooltip (id, index) {
   return {type: REGISTER_TOOLTIP, payload: {id, index}}
 }
